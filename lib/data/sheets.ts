@@ -13,11 +13,23 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 // Get Google Sheets client
 function getGoogleSheetsClient() {
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+  let privateKey = process.env.GOOGLE_PRIVATE_KEY;
 
   if (!email || !privateKey) {
     throw new Error('Google Sheets credentials not configured');
   }
+
+  // Handle different formats of the private key from environment variables
+  // Vercel may store \n as literal backslash-n, we need to convert to actual newlines
+  privateKey = privateKey
+    .replace(/\\n/g, '\n')
+    .replace(/\\r/g, '')
+    .replace(/"/g, ''); // Remove any surrounding quotes
+
+  // Log key info for debugging (not the actual key)
+  console.log('[Sheets] Private key length:', privateKey.length);
+  console.log('[Sheets] Key starts with:', privateKey.substring(0, 30));
+  console.log('[Sheets] Key ends with:', privateKey.substring(privateKey.length - 30));
 
   const auth = new google.auth.JWT({
     email,
