@@ -75,20 +75,22 @@ export interface SearchResults {
 
 // Specialty type
 export interface Specialty {
-  id: number;
+  id?: number;
   name: string;
   slug: string;
-  doctorCount: number;
+  count: number;
+  doctorCount?: number; // alias for count (for backwards compatibility)
 }
 
 // Location type
 export interface Location {
-  id: number;
+  id?: number;
   city: string;
   citySlug: string;
   state: string;
   stateSlug: string;
-  doctorCount: number;
+  count: number;
+  doctorCount?: number; // alias for count (for backwards compatibility)
 }
 
 // Sync stats

@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getDoctorBySlug, getRelatedDoctors } from "@/lib/db/queries";
+import { getDoctorBySlug, getRelatedDoctors } from "@/lib/data/sheets";
 import { getStateName } from "@/lib/utils/slugify";
 import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";

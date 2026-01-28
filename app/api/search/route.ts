@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { searchDoctors, getSpecialties } from '@/lib/db/queries';
+import { searchDoctors, getSpecialties } from '@/lib/data/sheets';
 import { SortOption } from '@/lib/types';
 
 export async function GET(request: NextRequest) {

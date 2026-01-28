@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import SearchBar from "@/components/search/SearchBar";
 import DoctorCard from "@/components/doctors/DoctorCard";
-import { searchDoctors, getLocations, getSpecialties } from "@/lib/db/queries";
+import { searchDoctors, getLocations, getSpecialties } from "@/lib/data/sheets";
 import { getStateName } from "@/lib/utils/slugify";
 import Link from "next/link";
 
@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `Doctors in ${location.city}, ${stateName}`,
-    description: `Find ${location.doctorCount} healthcare professionals in ${location.city}, ${stateName}. Browse verified doctors by specialty and connect with the right provider.`,
+    description: `Find ${location.count} healthcare professionals in ${location.city}, ${stateName}. Browse verified doctors by specialty and connect with the right provider.`,
   };
 }
 
@@ -212,7 +212,7 @@ export default async function LocationPage({ params, searchParams }: PageProps) 
                   href={`/location/${l.stateSlug}/${l.citySlug}`}
                   className="text-blue-600 hover:text-blue-700 hover:underline"
                 >
-                  {l.city} ({l.doctorCount})
+                  {l.city} ({l.count})
                 </Link>
               ))}
           </div>

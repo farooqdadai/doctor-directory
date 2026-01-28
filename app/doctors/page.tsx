@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import SearchBar from "@/components/search/SearchBar";
 import SearchFilters from "@/components/search/SearchFilters";
 import DoctorCard from "@/components/doctors/DoctorCard";
-import { searchDoctors, getSpecialties } from "@/lib/db/queries";
+import { searchDoctors, getSpecialties } from "@/lib/data/sheets";
 import { SortOption } from "@/lib/types";
 import Link from "next/link";
 

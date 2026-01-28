@@ -27,8 +27,8 @@ export default function LocationBrowse({ locations }: LocationBrowseProps) {
       state,
       stateName: getStateName(state),
       stateSlug: state.toLowerCase(),
-      locations: locs.sort((a, b) => b.doctorCount - a.doctorCount).slice(0, 4),
-      totalDoctors: locs.reduce((sum, loc) => sum + loc.doctorCount, 0),
+      locations: locs.sort((a, b) => b.count - a.count).slice(0, 4),
+      totalDoctors: locs.reduce((sum, loc) => sum + loc.count, 0),
     }))
     .sort((a, b) => b.totalDoctors - a.totalDoctors)
     .slice(0, 4);
@@ -53,7 +53,7 @@ export default function LocationBrowse({ locations }: LocationBrowseProps) {
                       className="text-sm text-gray-600 hover:text-blue-600 flex items-center justify-between group"
                     >
                       <span className="group-hover:underline">{loc.city}</span>
-                      <span className="text-gray-400 text-xs">{loc.doctorCount}</span>
+                      <span className="text-gray-400 text-xs">{loc.count}</span>
                     </Link>
                   </li>
                 ))}

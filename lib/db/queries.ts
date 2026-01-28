@@ -163,6 +163,7 @@ export async function getSpecialties(): Promise<Specialty[]> {
     id: index + 1,
     name: row.name as string,
     slug: row.slug as string,
+    count: row.doctor_count as number,
     doctorCount: row.doctor_count as number,
   }));
 }
@@ -184,6 +185,7 @@ export async function getLocations(): Promise<Location[]> {
     citySlug: row.city_slug as string,
     state: row.state as string,
     stateSlug: row.state_slug as string,
+    count: row.doctor_count as number,
     doctorCount: row.doctor_count as number,
   }));
 }

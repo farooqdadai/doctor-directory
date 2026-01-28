@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import SearchBar from "@/components/search/SearchBar";
 import DoctorCard from "@/components/doctors/DoctorCard";
-import { searchDoctors, getSpecialties } from "@/lib/db/queries";
+import { searchDoctors, getSpecialties } from "@/lib/data/sheets";
 import Link from "next/link";
 
 interface PageProps {
@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `Find ${specialty.name} Doctors`,
-    description: `Browse ${specialty.doctorCount} ${specialty.name} doctors in our directory. Find verified specialists, view profiles, and connect with the right healthcare provider.`,
+    description: `Browse ${specialty.count} ${specialty.name} doctors in our directory. Find verified specialists, view profiles, and connect with the right healthcare provider.`,
   };
 }
 
@@ -66,7 +66,7 @@ export default async function SpecialtyPage({ params, searchParams }: PageProps)
             Find {specialty.name} Doctors
           </h1>
           <p className="text-blue-100 text-lg">
-            {specialty.doctorCount} {specialty.doctorCount === 1 ? "doctor" : "doctors"}{" "}
+            {specialty.count} {specialty.count === 1 ? "doctor" : "doctors"}{" "}
             available
           </p>
 

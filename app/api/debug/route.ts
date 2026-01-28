@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getDb, initializeSchema } from '@/lib/db/index';
-import { getTotalDoctorCount, getSpecialties } from '@/lib/db/queries';
+import { getTotalDoctorCount, getSpecialties, fetchDoctorsFromSheets } from '@/lib/data/sheets';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,8 +20,6 @@ export async function GET() {
   log('-'.repeat(40));
 
   const envVars = {
-    TURSO_DATABASE_URL: process.env.TURSO_DATABASE_URL || 'NOT SET',
-    TURSO_AUTH_TOKEN: process.env.TURSO_AUTH_TOKEN ? `SET (${process.env.TURSO_AUTH_TOKEN.length} chars)` : 'NOT SET',
     GOOGLE_SHEET_ID: process.env.GOOGLE_SHEET_ID || 'NOT SET',
     GOOGLE_SERVICE_ACCOUNT_EMAIL: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || 'NOT SET',
     GOOGLE_PRIVATE_KEY: process.env.GOOGLE_PRIVATE_KEY ? `SET (${process.env.GOOGLE_PRIVATE_KEY.length} chars)` : 'NOT SET',
@@ -34,68 +31,101 @@ export async function GET() {
     log(`  ${key}: ${value}`);
   }
 
-  // Step 2: Test database connection
+  // Check if required env vars are set
+  if (!process.env.GOOGLE_SHEET_ID) {
+    log('');
+    log('ERROR: GOOGLE_SHEET_ID is not set!');
+    return NextResponse.json({
+      success: false,
+      step: 'env_check',
+      error: 'GOOGLE_SHEET_ID is not set',
+      logs,
+      envVars,
+    }, { status: 500 });
+  }
+
+  if (!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL) {
+    log('');
+    log('ERROR: GOOGLE_SERVICE_ACCOUNT_EMAIL is not set!');
+    return NextResponse.json({
+      success: false,
+      step: 'env_check',
+      error: 'GOOGLE_SERVICE_ACCOUNT_EMAIL is not set',
+      logs,
+      envVars,
+    }, { status: 500 });
+  }
+
+  if (!process.env.GOOGLE_PRIVATE_KEY) {
+    log('');
+    log('ERROR: GOOGLE_PRIVATE_KEY is not set!');
+    return NextResponse.json({
+      success: false,
+      step: 'env_check',
+      error: 'GOOGLE_PRIVATE_KEY is not set',
+      logs,
+      envVars,
+    }, { status: 500 });
+  }
+
+  // Step 2: Test Google Sheets connection
   log('');
-  log('STEP 2: Database Connection');
+  log('STEP 2: Google Sheets Connection');
   log('-'.repeat(40));
 
-  let dbClient;
+  let doctors: Awaited<ReturnType<typeof fetchDoctorsFromSheets>> = [];
+
   try {
-    log('  Calling getDb()...');
-    dbClient = getDb();
-    log('  SUCCESS: Got database client');
+    log('  Fetching data from Google Sheets...');
+    doctors = await fetchDoctorsFromSheets();
+    log(`  SUCCESS: Fetched ${doctors.length} doctors from sheet`);
+
+    if (doctors.length > 0) {
+      log('  Sample doctor:');
+      log(`    - Name: ${doctors[0].fullName}`);
+      log(`    - NPI: ${doctors[0].npi}`);
+      log(`    - Specialty: ${doctors[0].specialty}`);
+      log(`    - Location: ${doctors[0].city}, ${doctors[0].state}`);
+    }
   } catch (error) {
     log(`  FAILED: ${error instanceof Error ? error.message : String(error)}`);
     return NextResponse.json({
       success: false,
-      step: 'database_connection',
+      step: 'sheets_connection',
       error: error instanceof Error ? error.message : String(error),
       logs,
       envVars,
     }, { status: 500 });
   }
 
-  // Step 3: Initialize schema
+  // Step 3: Test data processing
   log('');
-  log('STEP 3: Schema Initialization');
-  log('-'.repeat(40));
-
-  try {
-    log('  Calling initializeSchema()...');
-    await initializeSchema();
-    log('  SUCCESS: Schema initialized');
-  } catch (error) {
-    log(`  FAILED: ${error instanceof Error ? error.message : String(error)}`);
-    return NextResponse.json({
-      success: false,
-      step: 'schema_initialization',
-      error: error instanceof Error ? error.message : String(error),
-      logs,
-      envVars,
-    }, { status: 500 });
-  }
-
-  // Step 4: Test a simple query
-  log('');
-  log('STEP 4: Test Query');
+  log('STEP 3: Data Processing');
   log('-'.repeat(40));
 
   let doctorCount = 0;
   let specialties: Awaited<ReturnType<typeof getSpecialties>> = [];
 
   try {
-    log('  Fetching doctor count...');
+    log('  Getting doctor count...');
     doctorCount = await getTotalDoctorCount();
-    log(`  SUCCESS: Found ${doctorCount} doctors`);
+    log(`  SUCCESS: ${doctorCount} active doctors`);
 
-    log('  Fetching specialties...');
+    log('  Getting specialties...');
     specialties = await getSpecialties();
-    log(`  SUCCESS: Found ${specialties.length} specialties`);
+    log(`  SUCCESS: ${specialties.length} specialties found`);
+
+    if (specialties.length > 0) {
+      log('  Top specialties:');
+      specialties.slice(0, 5).forEach(s => {
+        log(`    - ${s.name}: ${s.count} doctors`);
+      });
+    }
   } catch (error) {
     log(`  FAILED: ${error instanceof Error ? error.message : String(error)}`);
     return NextResponse.json({
       success: false,
-      step: 'test_query',
+      step: 'data_processing',
       error: error instanceof Error ? error.message : String(error),
       logs,
       envVars,
@@ -110,11 +140,16 @@ export async function GET() {
 
   return NextResponse.json({
     success: true,
-    message: 'All database tests passed!',
+    message: 'Google Sheets connection working!',
     data: {
       doctorCount,
       specialtiesCount: specialties.length,
       specialties: specialties.slice(0, 5),
+      sampleDoctors: doctors.slice(0, 3).map(d => ({
+        name: d.fullName,
+        specialty: d.specialty,
+        location: `${d.city}, ${d.state}`,
+      })),
     },
     logs,
     envVars,
