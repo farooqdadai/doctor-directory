@@ -1,4 +1,4 @@
-import { getDb } from './index';
+import { getDb, initializeSchema } from './index';
 import { slugify, generateDoctorSlug } from '../utils/slugify';
 
 // Sample doctor data for testing
@@ -260,62 +260,57 @@ const sampleDoctors = [
   },
 ];
 
-export function seedDatabase() {
+export async function seedDatabase(): Promise<{ count: number }> {
   const db = getDb();
+
+  console.log('Initializing schema...');
+  await initializeSchema();
 
   console.log('Seeding database with sample data...');
 
   // Clear existing data
-  db.exec('DELETE FROM doctors');
+  await db.execute('DELETE FROM doctors');
 
   // Insert sample doctors
-  const insertStmt = db.prepare(`
-    INSERT INTO doctors (
-      npi, full_name, slug, specialty, specialty_slug, sub_specialty,
-      practice_name, website, city, city_slug, state, state_slug,
-      email, phone, linkedin, profile_status, is_verified, is_featured, priority
-    ) VALUES (
-      @npi, @fullName, @slug, @specialty, @specialtySlug, @subSpecialty,
-      @practiceName, @website, @city, @citySlug, @state, @stateSlug,
-      @email, @phone, @linkedin, @profileStatus, @isVerified, @isFeatured, @priority
-    )
-  `);
-
   for (const doctor of sampleDoctors) {
     const slug = generateDoctorSlug(doctor.fullName, doctor.npi);
     const specialtySlug = slugify(doctor.specialty);
     const citySlug = slugify(doctor.city);
     const stateSlug = doctor.state.toLowerCase();
 
-    insertStmt.run({
-      npi: doctor.npi,
-      fullName: doctor.fullName,
-      slug,
-      specialty: doctor.specialty,
-      specialtySlug,
-      subSpecialty: doctor.subSpecialty || null,
-      practiceName: doctor.practiceName || null,
-      website: doctor.website || null,
-      city: doctor.city,
-      citySlug,
-      state: doctor.state,
-      stateSlug,
-      email: doctor.email || null,
-      phone: doctor.phone || null,
-      linkedin: doctor.linkedin || null,
-      profileStatus: doctor.profileStatus,
-      isVerified: doctor.isVerified ? 1 : 0,
-      isFeatured: doctor.isFeatured ? 1 : 0,
-      priority: doctor.priority,
+    await db.execute({
+      sql: `
+        INSERT INTO doctors (
+          npi, full_name, slug, specialty, specialty_slug, sub_specialty,
+          practice_name, website, city, city_slug, state, state_slug,
+          email, phone, linkedin, profile_status, is_verified, is_featured, priority
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      args: [
+        doctor.npi,
+        doctor.fullName,
+        slug,
+        doctor.specialty,
+        specialtySlug,
+        doctor.subSpecialty || null,
+        doctor.practiceName || null,
+        doctor.website || null,
+        doctor.city,
+        citySlug,
+        doctor.state,
+        stateSlug,
+        doctor.email || null,
+        doctor.phone || null,
+        doctor.linkedin || null,
+        doctor.profileStatus,
+        doctor.isVerified ? 1 : 0,
+        doctor.isFeatured ? 1 : 0,
+        doctor.priority,
+      ],
     });
   }
 
   console.log(`Inserted ${sampleDoctors.length} sample doctors.`);
 
   return { count: sampleDoctors.length };
-}
-
-// Run if called directly
-if (require.main === module) {
-  seedDatabase();
 }

@@ -183,19 +183,20 @@ export default async function DoctorsPage({ searchParams }: PageProps) {
   const page = parseInt(params.page || "1", 10);
 
   // Fetch data
-  const results = searchDoctors({
-    query,
-    specialty,
-    state,
-    city,
-    verifiedOnly,
-    featuredOnly,
-    sort,
-    page,
-    limit: 12,
-  });
-
-  const specialties = getSpecialties();
+  const [results, specialties] = await Promise.all([
+    searchDoctors({
+      query,
+      specialty,
+      state,
+      city,
+      verifiedOnly,
+      featuredOnly,
+      sort,
+      page,
+      limit: 12,
+    }),
+    getSpecialties(),
+  ]);
 
   // Build title
   let title = "All Doctors";

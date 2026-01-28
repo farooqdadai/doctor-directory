@@ -87,7 +87,7 @@ export async function syncFromGoogleSheets(): Promise<SyncStats> {
           continue;
         }
 
-        const result = upsertDoctor({
+        const result = await upsertDoctor({
           npi: parsed.npi,
           fullName: parsed.fullName,
           specialty: parsed.specialty,
@@ -122,7 +122,7 @@ export async function syncFromGoogleSheets(): Promise<SyncStats> {
     }
 
     // Log the sync operation
-    logSync(stats);
+    await logSync(stats);
 
   } catch (error) {
     stats.errors.push(`Sync failed: ${error instanceof Error ? error.message : 'Unknown error'}`);

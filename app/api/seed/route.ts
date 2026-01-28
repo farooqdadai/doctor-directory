@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Seed database
-    const result = seedDatabase();
+    const result = await seedDatabase();
 
     return NextResponse.json({
       success: true,
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
 // GET to check status
 export async function GET() {
   try {
-    const count = getTotalDoctorCount();
+    const count = await getTotalDoctorCount();
     return NextResponse.json({
       success: true,
       count,

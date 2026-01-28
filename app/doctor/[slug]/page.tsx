@@ -13,7 +13,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const doctor = getDoctorBySlug(slug);
+  const doctor = await getDoctorBySlug(slug);
 
   if (!doctor) {
     return {
@@ -29,13 +29,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function DoctorProfilePage({ params }: PageProps) {
   const { slug } = await params;
-  const doctor = getDoctorBySlug(slug);
+  const doctor = await getDoctorBySlug(slug);
 
   if (!doctor) {
     notFound();
   }
 
-  const relatedDoctors = getRelatedDoctors(doctor, 3);
+  const relatedDoctors = await getRelatedDoctors(doctor, 3);
 
   return (
     <div className="bg-gray-50 min-h-screen">

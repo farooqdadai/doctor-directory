@@ -13,7 +13,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { state, city } = await params;
-  const locations = getLocations();
+  const locations = await getLocations();
   const location = locations.find(
     (l) => l.stateSlug === state && l.citySlug === city
   );
@@ -36,7 +36,7 @@ export default async function LocationPage({ params, searchParams }: PageProps) 
   const { state, city } = await params;
   const { page: pageParam, specialty } = await searchParams;
 
-  const locations = getLocations();
+  const locations = await getLocations();
   const location = locations.find(
     (l) => l.stateSlug === state && l.citySlug === city
   );
@@ -47,9 +47,9 @@ export default async function LocationPage({ params, searchParams }: PageProps) 
 
   const page = parseInt(pageParam || "1", 10);
   const stateName = getStateName(location.state);
-  const specialties = getSpecialties();
+  const specialties = await getSpecialties();
 
-  const results = searchDoctors({
+  const results = await searchDoctors({
     state,
     city,
     specialty,
@@ -58,10 +58,11 @@ export default async function LocationPage({ params, searchParams }: PageProps) 
   });
 
   // Get specialties available in this location
-  const locationSpecialties = specialties.filter((s) => {
-    const localResults = searchDoctors({ state, city, specialty: s.slug, limit: 1 });
-    return localResults.total > 0;
+  const locationSpecialtiesPromises = specialties.map(async (s) => {
+    const localResults = await searchDoctors({ state, city, specialty: s.slug, limit: 1 });
+    return localResults.total > 0 ? s : null;
   });
+  const locationSpecialties = (await Promise.all(locationSpecialtiesPromises)).filter(Boolean) as typeof specialties;
 
   return (
     <div className="bg-gray-50 min-h-screen">

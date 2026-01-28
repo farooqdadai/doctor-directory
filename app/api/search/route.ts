@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 100);
 
     // Search doctors
-    const results = searchDoctors({
+    const results = await searchDoctors({
       query,
       specialty,
       state,
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Get specialties for filter options
-    const specialties = getSpecialties();
+    const specialties = await getSpecialties();
 
     return NextResponse.json({
       ...results,

@@ -12,7 +12,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const specialties = getSpecialties();
+  const specialties = await getSpecialties();
   const specialty = specialties.find((s) => s.slug === slug);
 
   if (!specialty) {
@@ -31,7 +31,7 @@ export default async function SpecialtyPage({ params, searchParams }: PageProps)
   const { slug } = await params;
   const { page: pageParam } = await searchParams;
 
-  const specialties = getSpecialties();
+  const specialties = await getSpecialties();
   const specialty = specialties.find((s) => s.slug === slug);
 
   if (!specialty) {
@@ -40,7 +40,7 @@ export default async function SpecialtyPage({ params, searchParams }: PageProps)
 
   const page = parseInt(pageParam || "1", 10);
 
-  const results = searchDoctors({
+  const results = await searchDoctors({
     specialty: slug,
     page,
     limit: 12,
@@ -153,7 +153,7 @@ export default async function SpecialtyPage({ params, searchParams }: PageProps)
               No doctors found
             </h3>
             <p className="text-gray-600 mb-4">
-              We don't have any {specialty.name} doctors listed yet.
+              We don&apos;t have any {specialty.name} doctors listed yet.
             </p>
             <Link
               href="/doctors"

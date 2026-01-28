@@ -1,37 +1,38 @@
 import { getDb } from './index';
 import { Doctor, DoctorRow, SearchParams, SearchResults, Specialty, Location } from '../types';
 import { slugify, generateDoctorSlug } from '../utils/slugify';
+import { Row } from '@libsql/client';
 
 // Convert database row to Doctor object
-function rowToDoctor(row: DoctorRow): Doctor {
+function rowToDoctor(row: Row): Doctor {
   return {
-    id: row.id,
-    npi: row.npi,
-    fullName: row.full_name,
-    slug: row.slug,
-    specialty: row.specialty,
-    specialtySlug: row.specialty_slug,
-    subSpecialty: row.sub_specialty,
-    practiceName: row.practice_name,
-    website: row.website,
-    city: row.city,
-    citySlug: row.city_slug,
-    state: row.state,
-    stateSlug: row.state_slug,
-    email: row.email,
-    phone: row.phone,
-    linkedin: row.linkedin,
+    id: row.id as number,
+    npi: row.npi as string,
+    fullName: row.full_name as string,
+    slug: row.slug as string,
+    specialty: row.specialty as string,
+    specialtySlug: row.specialty_slug as string,
+    subSpecialty: row.sub_specialty as string | null,
+    practiceName: row.practice_name as string | null,
+    website: row.website as string | null,
+    city: row.city as string,
+    citySlug: row.city_slug as string,
+    state: row.state as string,
+    stateSlug: row.state_slug as string,
+    email: row.email as string | null,
+    phone: row.phone as string | null,
+    linkedin: row.linkedin as string | null,
     profileStatus: row.profile_status as 'Active' | 'Inactive',
     isVerified: row.is_verified === 1,
     isFeatured: row.is_featured === 1,
-    priority: row.priority,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
+    priority: row.priority as number,
+    createdAt: row.created_at as string,
+    updatedAt: row.updated_at as string,
   };
 }
 
 // Search doctors with filters and sorting
-export function searchDoctors(params: SearchParams): SearchResults {
+export async function searchDoctors(params: SearchParams): Promise<SearchResults> {
   const db = getDb();
   const {
     query = '',
@@ -47,22 +48,22 @@ export function searchDoctors(params: SearchParams): SearchResults {
 
   const offset = (page - 1) * limit;
   const conditions: string[] = ["profile_status = 'Active'"];
-  const queryParams: Record<string, string | number> = {};
+  const queryParams: (string | number)[] = [];
 
   // Add filters
   if (specialty) {
-    conditions.push('specialty_slug = @specialty');
-    queryParams.specialty = specialty;
+    conditions.push('specialty_slug = ?');
+    queryParams.push(specialty);
   }
 
   if (state) {
-    conditions.push('state_slug = @state');
-    queryParams.state = state.toLowerCase();
+    conditions.push('state_slug = ?');
+    queryParams.push(state.toLowerCase());
   }
 
   if (city) {
-    conditions.push('city_slug = @city');
-    queryParams.city = city.toLowerCase();
+    conditions.push('city_slug = ?');
+    queryParams.push(city.toLowerCase());
   }
 
   if (verifiedOnly) {
@@ -76,9 +77,10 @@ export function searchDoctors(params: SearchParams): SearchResults {
   // Text search
   if (query) {
     conditions.push(
-      "(full_name LIKE @query OR specialty LIKE @query OR practice_name LIKE @query OR sub_specialty LIKE @query)"
+      "(full_name LIKE ? OR specialty LIKE ? OR practice_name LIKE ? OR sub_specialty LIKE ?)"
     );
-    queryParams.query = `%${query}%`;
+    const likeQuery = `%${query}%`;
+    queryParams.push(likeQuery, likeQuery, likeQuery, likeQuery);
   }
 
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
@@ -103,25 +105,21 @@ export function searchDoctors(params: SearchParams): SearchResults {
 
   // Get total count
   const countSql = `SELECT COUNT(*) as total FROM doctors ${whereClause}`;
-  const countResult = db.prepare(countSql).get(queryParams) as { total: number };
-  const total = countResult.total;
+  const countResult = await db.execute({ sql: countSql, args: queryParams });
+  const total = (countResult.rows[0]?.total as number) || 0;
 
   // Get doctors
   const sql = `
     SELECT * FROM doctors
     ${whereClause}
     ORDER BY ${orderBy}
-    LIMIT @limit OFFSET @offset
+    LIMIT ? OFFSET ?
   `;
 
-  const rows = db.prepare(sql).all({
-    ...queryParams,
-    limit,
-    offset,
-  }) as DoctorRow[];
+  const result = await db.execute({ sql, args: [...queryParams, limit, offset] });
 
   return {
-    doctors: rows.map(rowToDoctor),
+    doctors: result.rows.map(rowToDoctor),
     total,
     page,
     totalPages: Math.ceil(total / limit),
@@ -129,89 +127,88 @@ export function searchDoctors(params: SearchParams): SearchResults {
 }
 
 // Get doctor by slug
-export function getDoctorBySlug(slug: string): Doctor | null {
+export async function getDoctorBySlug(slug: string): Promise<Doctor | null> {
   const db = getDb();
-  const row = db
-    .prepare('SELECT * FROM doctors WHERE slug = ?')
-    .get(slug) as DoctorRow | undefined;
+  const result = await db.execute({
+    sql: 'SELECT * FROM doctors WHERE slug = ?',
+    args: [slug],
+  });
 
-  return row ? rowToDoctor(row) : null;
+  return result.rows.length > 0 ? rowToDoctor(result.rows[0]) : null;
 }
 
 // Get doctor by NPI
-export function getDoctorByNPI(npi: string): Doctor | null {
+export async function getDoctorByNPI(npi: string): Promise<Doctor | null> {
   const db = getDb();
-  const row = db
-    .prepare('SELECT * FROM doctors WHERE npi = ?')
-    .get(npi) as DoctorRow | undefined;
+  const result = await db.execute({
+    sql: 'SELECT * FROM doctors WHERE npi = ?',
+    args: [npi],
+  });
 
-  return row ? rowToDoctor(row) : null;
+  return result.rows.length > 0 ? rowToDoctor(result.rows[0]) : null;
 }
 
 // Get all specialties with counts
-export function getSpecialties(): Specialty[] {
+export async function getSpecialties(): Promise<Specialty[]> {
   const db = getDb();
-  const rows = db
-    .prepare(`
-      SELECT specialty as name, specialty_slug as slug, COUNT(*) as doctor_count
-      FROM doctors
-      WHERE profile_status = 'Active'
-      GROUP BY specialty_slug
-      ORDER BY doctor_count DESC
-    `)
-    .all() as { name: string; slug: string; doctor_count: number }[];
+  const result = await db.execute(`
+    SELECT specialty as name, specialty_slug as slug, COUNT(*) as doctor_count
+    FROM doctors
+    WHERE profile_status = 'Active'
+    GROUP BY specialty_slug
+    ORDER BY doctor_count DESC
+  `);
 
-  return rows.map((row, index) => ({
+  return result.rows.map((row, index) => ({
     id: index + 1,
-    name: row.name,
-    slug: row.slug,
-    doctorCount: row.doctor_count,
+    name: row.name as string,
+    slug: row.slug as string,
+    doctorCount: row.doctor_count as number,
   }));
 }
 
 // Get all locations with counts
-export function getLocations(): Location[] {
+export async function getLocations(): Promise<Location[]> {
   const db = getDb();
-  const rows = db
-    .prepare(`
-      SELECT city, city_slug, state, state_slug, COUNT(*) as doctor_count
-      FROM doctors
-      WHERE profile_status = 'Active'
-      GROUP BY city_slug, state_slug
-      ORDER BY doctor_count DESC
-    `)
-    .all() as { city: string; city_slug: string; state: string; state_slug: string; doctor_count: number }[];
+  const result = await db.execute(`
+    SELECT city, city_slug, state, state_slug, COUNT(*) as doctor_count
+    FROM doctors
+    WHERE profile_status = 'Active'
+    GROUP BY city_slug, state_slug
+    ORDER BY doctor_count DESC
+  `);
 
-  return rows.map((row, index) => ({
+  return result.rows.map((row, index) => ({
     id: index + 1,
-    city: row.city,
-    citySlug: row.city_slug,
-    state: row.state,
-    stateSlug: row.state_slug,
-    doctorCount: row.doctor_count,
+    city: row.city as string,
+    citySlug: row.city_slug as string,
+    state: row.state as string,
+    stateSlug: row.state_slug as string,
+    doctorCount: row.doctor_count as number,
   }));
 }
 
 // Get featured doctors
-export function getFeaturedDoctors(limit: number = 6): Doctor[] {
+export async function getFeaturedDoctors(limit: number = 6): Promise<Doctor[]> {
   const db = getDb();
-  const rows = db
-    .prepare(`
+  const result = await db.execute({
+    sql: `
       SELECT * FROM doctors
       WHERE profile_status = 'Active' AND is_featured = 1
       ORDER BY priority DESC, RANDOM()
       LIMIT ?
-    `)
-    .all(limit) as DoctorRow[];
+    `,
+    args: [limit],
+  });
 
-  return rows.map(rowToDoctor);
+  return result.rows.map(rowToDoctor);
 }
 
 // Get related doctors (same specialty, same city)
-export function getRelatedDoctors(doctor: Doctor, limit: number = 3): Doctor[] {
+export async function getRelatedDoctors(doctor: Doctor, limit: number = 3): Promise<Doctor[]> {
   const db = getDb();
-  const rows = db
-    .prepare(`
+  const result = await db.execute({
+    sql: `
       SELECT * FROM doctors
       WHERE profile_status = 'Active'
         AND npi != ?
@@ -223,8 +220,8 @@ export function getRelatedDoctors(doctor: Doctor, limit: number = 3): Doctor[] {
              ELSE 3 END,
         is_featured DESC, is_verified DESC, priority DESC
       LIMIT ?
-    `)
-    .all(
+    `,
+    args: [
       doctor.npi,
       doctor.specialtySlug,
       doctor.citySlug,
@@ -232,14 +229,15 @@ export function getRelatedDoctors(doctor: Doctor, limit: number = 3): Doctor[] {
       doctor.citySlug,
       doctor.specialtySlug,
       doctor.citySlug,
-      limit
-    ) as DoctorRow[];
+      limit,
+    ],
+  });
 
-  return rows.map(rowToDoctor);
+  return result.rows.map(rowToDoctor);
 }
 
 // Upsert doctor (insert or update)
-export function upsertDoctor(data: {
+export async function upsertDoctor(data: {
   npi: string;
   fullName: string;
   specialty: string;
@@ -255,7 +253,7 @@ export function upsertDoctor(data: {
   isVerified?: boolean;
   isFeatured?: boolean;
   priority?: number;
-}): { action: 'added' | 'updated' | 'unchanged' } {
+}): Promise<{ action: 'added' | 'updated' | 'unchanged' }> {
   const db = getDb();
 
   const slug = generateDoctorSlug(data.fullName, data.npi);
@@ -264,42 +262,44 @@ export function upsertDoctor(data: {
   const stateSlug = data.state.toLowerCase();
 
   // Check if exists
-  const existing = db
-    .prepare('SELECT * FROM doctors WHERE npi = ?')
-    .get(data.npi) as DoctorRow | undefined;
+  const existingResult = await db.execute({
+    sql: 'SELECT * FROM doctors WHERE npi = ?',
+    args: [data.npi],
+  });
+
+  const existing = existingResult.rows[0];
 
   if (!existing) {
     // Insert new
-    db.prepare(`
-      INSERT INTO doctors (
-        npi, full_name, slug, specialty, specialty_slug, sub_specialty,
-        practice_name, website, city, city_slug, state, state_slug,
-        email, phone, linkedin, profile_status, is_verified, is_featured, priority
-      ) VALUES (
-        @npi, @fullName, @slug, @specialty, @specialtySlug, @subSpecialty,
-        @practiceName, @website, @city, @citySlug, @state, @stateSlug,
-        @email, @phone, @linkedin, @profileStatus, @isVerified, @isFeatured, @priority
-      )
-    `).run({
-      npi: data.npi,
-      fullName: data.fullName,
-      slug,
-      specialty: data.specialty,
-      specialtySlug,
-      subSpecialty: data.subSpecialty || null,
-      practiceName: data.practiceName || null,
-      website: data.website || null,
-      city: data.city,
-      citySlug,
-      state: data.state,
-      stateSlug,
-      email: data.email || null,
-      phone: data.phone || null,
-      linkedin: data.linkedin || null,
-      profileStatus: data.profileStatus || 'Active',
-      isVerified: data.isVerified ? 1 : 0,
-      isFeatured: data.isFeatured ? 1 : 0,
-      priority: data.priority || 50,
+    await db.execute({
+      sql: `
+        INSERT INTO doctors (
+          npi, full_name, slug, specialty, specialty_slug, sub_specialty,
+          practice_name, website, city, city_slug, state, state_slug,
+          email, phone, linkedin, profile_status, is_verified, is_featured, priority
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      args: [
+        data.npi,
+        data.fullName,
+        slug,
+        data.specialty,
+        specialtySlug,
+        data.subSpecialty || null,
+        data.practiceName || null,
+        data.website || null,
+        data.city,
+        citySlug,
+        data.state,
+        stateSlug,
+        data.email || null,
+        data.phone || null,
+        data.linkedin || null,
+        data.profileStatus || 'Active',
+        data.isVerified ? 1 : 0,
+        data.isFeatured ? 1 : 0,
+        data.priority || 50,
+      ],
     });
 
     return { action: 'added' };
@@ -327,79 +327,85 @@ export function upsertDoctor(data: {
   }
 
   // Update existing
-  db.prepare(`
-    UPDATE doctors SET
-      full_name = @fullName,
-      slug = @slug,
-      specialty = @specialty,
-      specialty_slug = @specialtySlug,
-      sub_specialty = @subSpecialty,
-      practice_name = @practiceName,
-      website = @website,
-      city = @city,
-      city_slug = @citySlug,
-      state = @state,
-      state_slug = @stateSlug,
-      email = @email,
-      phone = @phone,
-      linkedin = @linkedin,
-      profile_status = @profileStatus,
-      is_verified = @isVerified,
-      is_featured = @isFeatured,
-      priority = @priority,
-      updated_at = CURRENT_TIMESTAMP
-    WHERE npi = @npi
-  `).run({
-    npi: data.npi,
-    fullName: data.fullName,
-    slug,
-    specialty: data.specialty,
-    specialtySlug,
-    subSpecialty: data.subSpecialty || null,
-    practiceName: data.practiceName || null,
-    website: data.website || null,
-    city: data.city,
-    citySlug,
-    state: data.state,
-    stateSlug,
-    email: data.email || null,
-    phone: data.phone || null,
-    linkedin: data.linkedin || null,
-    profileStatus: data.profileStatus || 'Active',
-    isVerified: data.isVerified ? 1 : 0,
-    isFeatured: data.isFeatured ? 1 : 0,
-    priority: data.priority || 50,
+  await db.execute({
+    sql: `
+      UPDATE doctors SET
+        full_name = ?,
+        slug = ?,
+        specialty = ?,
+        specialty_slug = ?,
+        sub_specialty = ?,
+        practice_name = ?,
+        website = ?,
+        city = ?,
+        city_slug = ?,
+        state = ?,
+        state_slug = ?,
+        email = ?,
+        phone = ?,
+        linkedin = ?,
+        profile_status = ?,
+        is_verified = ?,
+        is_featured = ?,
+        priority = ?,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE npi = ?
+    `,
+    args: [
+      data.fullName,
+      slug,
+      data.specialty,
+      specialtySlug,
+      data.subSpecialty || null,
+      data.practiceName || null,
+      data.website || null,
+      data.city,
+      citySlug,
+      data.state,
+      stateSlug,
+      data.email || null,
+      data.phone || null,
+      data.linkedin || null,
+      data.profileStatus || 'Active',
+      data.isVerified ? 1 : 0,
+      data.isFeatured ? 1 : 0,
+      data.priority || 50,
+      data.npi,
+    ],
   });
 
   return { action: 'updated' };
 }
 
 // Log sync operation
-export function logSync(stats: {
+export async function logSync(stats: {
   processed: number;
   added: number;
   updated: number;
   unchanged: number;
   errors: string[];
-}) {
+}): Promise<void> {
   const db = getDb();
-  db.prepare(`
-    INSERT INTO sync_log (records_processed, records_added, records_updated, records_unchanged, errors)
-    VALUES (?, ?, ?, ?, ?)
-  `).run(
-    stats.processed,
-    stats.added,
-    stats.updated,
-    stats.unchanged,
-    JSON.stringify(stats.errors)
-  );
+  await db.execute({
+    sql: `
+      INSERT INTO sync_log (records_processed, records_added, records_updated, records_unchanged, errors)
+      VALUES (?, ?, ?, ?, ?)
+    `,
+    args: [
+      stats.processed,
+      stats.added,
+      stats.updated,
+      stats.unchanged,
+      JSON.stringify(stats.errors),
+    ],
+  });
 }
 
 // Get total doctor count
-export function getTotalDoctorCount(): number {
+export async function getTotalDoctorCount(): Promise<number> {
   const db = getDb();
-  const result = db
-    .prepare("SELECT COUNT(*) as count FROM doctors WHERE profile_status = 'Active'")
-    .get() as { count: number };
-  return result.count;
+  const result = await db.execute(
+    "SELECT COUNT(*) as count FROM doctors WHERE profile_status = 'Active'"
+  );
+  return (result.rows[0]?.count as number) || 0;
 }
