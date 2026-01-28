@@ -1,4 +1,4 @@
-import { createClient, Client } from '@libsql/client';
+import { createClient, type Client } from '@libsql/client/web';
 
 // Database client singleton
 let db: Client | null = null;
