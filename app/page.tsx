@@ -13,27 +13,55 @@ import { initializeSchema } from "@/lib/db/index";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
+  console.log('');
+  console.log('*'.repeat(60));
+  console.log('*  HOMEPAGE LOADING - ' + new Date().toISOString());
+  console.log('*'.repeat(60));
+  console.log('');
+
+  // Log all environment variables (hide sensitive parts)
+  console.log('[ENV] Environment Variables Check:');
+  console.log('[ENV]   TURSO_DATABASE_URL:', process.env.TURSO_DATABASE_URL || 'NOT SET');
+  console.log('[ENV]   TURSO_AUTH_TOKEN:', process.env.TURSO_AUTH_TOKEN ? 'SET (' + process.env.TURSO_AUTH_TOKEN.length + ' chars)' : 'NOT SET');
+  console.log('[ENV]   GOOGLE_SHEET_ID:', process.env.GOOGLE_SHEET_ID || 'NOT SET');
+  console.log('[ENV]   GOOGLE_SERVICE_ACCOUNT_EMAIL:', process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || 'NOT SET');
+  console.log('[ENV]   GOOGLE_PRIVATE_KEY:', process.env.GOOGLE_PRIVATE_KEY ? 'SET (' + process.env.GOOGLE_PRIVATE_KEY.length + ' chars)' : 'NOT SET');
+  console.log('[ENV]   ADMIN_PASSWORD:', process.env.ADMIN_PASSWORD ? 'SET' : 'NOT SET');
+  console.log('[ENV]   NODE_ENV:', process.env.NODE_ENV);
+  console.log('');
+
   try {
-    console.log('[HomePage] Starting to fetch data...');
-
-    // Initialize schema if needed (creates tables if they don't exist)
+    console.log('[HomePage] Step 1: Initializing database schema...');
     await initializeSchema();
-    console.log('[HomePage] Schema initialized');
+    console.log('[HomePage] Step 1: DONE - Schema initialized');
 
-    // Fetch data for homepage
-    const [specialties, featuredDoctors, locations, totalDoctors] = await Promise.all([
-      getSpecialties(),
-      getFeaturedDoctors(6),
-      getLocations(),
-      getTotalDoctorCount(),
-    ]);
+    console.log('[HomePage] Step 2: Fetching data from database...');
 
-    console.log('[HomePage] Data fetched successfully:', {
+    console.log('[HomePage]   - Fetching specialties...');
+    const specialties = await getSpecialties();
+    console.log('[HomePage]   - Got', specialties.length, 'specialties');
+
+    console.log('[HomePage]   - Fetching featured doctors...');
+    const featuredDoctors = await getFeaturedDoctors(6);
+    console.log('[HomePage]   - Got', featuredDoctors.length, 'featured doctors');
+
+    console.log('[HomePage]   - Fetching locations...');
+    const locations = await getLocations();
+    console.log('[HomePage]   - Got', locations.length, 'locations');
+
+    console.log('[HomePage]   - Fetching total doctor count...');
+    const totalDoctors = await getTotalDoctorCount();
+    console.log('[HomePage]   - Total doctors:', totalDoctors);
+
+    console.log('');
+    console.log('[HomePage] Step 2: DONE - All data fetched successfully!');
+    console.log('[HomePage] Summary:', {
       specialties: specialties.length,
       featuredDoctors: featuredDoctors.length,
       locations: locations.length,
       totalDoctors,
     });
+    console.log('');
 
     return (
       <>
