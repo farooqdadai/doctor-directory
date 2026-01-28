@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import SearchBar from "@/components/search/SearchBar";
 import SearchFilters from "@/components/search/SearchFilters";
 import DoctorCard from "@/components/doctors/DoctorCard";
+import SortSelector from "@/components/doctors/SortSelector";
 import { searchDoctors, getSpecialties } from "@/lib/data/sheets";
 import { SortOption } from "@/lib/types";
 import Link from "next/link";
@@ -26,49 +27,6 @@ interface PageProps {
     sort?: string;
     page?: string;
   }>;
-}
-
-function SortSelector({
-  currentSort,
-  searchParams,
-}: {
-  currentSort: SortOption;
-  searchParams: Record<string, string | undefined>;
-}) {
-  const sortOptions: { value: SortOption; label: string }[] = [
-    { value: "best_match", label: "Best Match" },
-    { value: "a_z", label: "A-Z" },
-    { value: "featured", label: "Featured First" },
-    { value: "verified", label: "Verified First" },
-  ];
-
-  return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm text-gray-600">Sort by:</span>
-      <select
-        defaultValue={currentSort}
-        onChange={(e) => {
-          const params = new URLSearchParams();
-          Object.entries(searchParams).forEach(([key, value]) => {
-            if (value && key !== "sort" && key !== "page") {
-              params.set(key, value);
-            }
-          });
-          if (e.target.value !== "best_match") {
-            params.set("sort", e.target.value);
-          }
-          window.location.href = `/doctors?${params.toString()}`;
-        }}
-        className="rounded-lg border border-gray-300 py-1.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-      >
-        {sortOptions.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
 }
 
 function Pagination({
@@ -244,17 +202,9 @@ export default async function DoctorsPage({ searchParams }: PageProps) {
                   found
                 </p>
               </div>
-              <SortSelector
-                currentSort={sort}
-                searchParams={{
-                  q: query,
-                  specialty,
-                  state,
-                  city,
-                  verified: verifiedOnly ? "true" : undefined,
-                  featured: featuredOnly ? "true" : undefined,
-                }}
-              />
+              <Suspense fallback={<div>Loading...</div>}>
+                <SortSelector currentSort={sort} />
+              </Suspense>
             </div>
 
             {/* Results Grid */}
