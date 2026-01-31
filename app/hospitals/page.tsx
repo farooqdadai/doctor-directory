@@ -33,21 +33,36 @@ export default async function HospitalsPage({ searchParams }: PageProps) {
   const hasTrauma = params.hasTrauma === 'true';
   const sort = params.sort || 'name_asc';
 
-  // Fetch data in parallel
-  const [searchResults, types, states, totalCount] = await Promise.all([
-    searchHospitals({
-      query,
-      state,
-      type,
-      hasTrauma,
-      sort: sort as 'name_asc' | 'name_desc' | 'rating' | 'beds',
-      page: currentPage,
-      limit: 12,
-    }),
-    getHospitalTypes(),
-    getHospitalStates(),
-    getTotalHospitalCount(),
-  ]);
+  // Fetch data in parallel with error handling
+  let searchResults = { hospitals: [] as Awaited<ReturnType<typeof searchHospitals>>['hospitals'], total: 0, page: 1, totalPages: 0 };
+  let types: Awaited<ReturnType<typeof getHospitalTypes>> = [];
+  let states: Awaited<ReturnType<typeof getHospitalStates>> = [];
+  let totalCount = 0;
+  let fetchError: string | null = null;
+
+  try {
+    const results = await Promise.all([
+      searchHospitals({
+        query,
+        state,
+        type,
+        hasTrauma,
+        sort: sort as 'name_asc' | 'name_desc' | 'rating' | 'beds',
+        page: currentPage,
+        limit: 12,
+      }),
+      getHospitalTypes(),
+      getHospitalStates(),
+      getTotalHospitalCount(),
+    ]);
+    searchResults = results[0];
+    types = results[1];
+    states = results[2];
+    totalCount = results[3];
+  } catch (error) {
+    console.error('[Hospitals Page] Error fetching data:', error);
+    fetchError = error instanceof Error ? error.message : 'Failed to load hospital data';
+  }
 
   const { hospitals, total, page, totalPages } = searchResults;
 
@@ -115,7 +130,33 @@ export default async function HospitalsPage({ searchParams }: PageProps) {
 
           {/* Results Grid */}
           <main className="lg:col-span-3">
-            {hospitals.length > 0 ? (
+            {fetchError ? (
+              <div className="text-center py-16 bg-white rounded-2xl border border-red-100">
+                <svg
+                  className="w-16 h-16 text-red-300 mx-auto mb-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Unable to load hospitals</h3>
+                <p className="text-gray-500 mb-4">
+                  {fetchError}
+                </p>
+                <Link
+                  href="/hospitals"
+                  className="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors"
+                >
+                  Try Again
+                </Link>
+              </div>
+            ) : hospitals.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                   {hospitals.map((hospital) => (

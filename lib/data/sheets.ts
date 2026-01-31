@@ -552,9 +552,14 @@ export async function fetchHospitalsFromSheets(): Promise<Hospital[]> {
     hospitalCacheTimestamp = Date.now();
 
     return hospitals;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[Sheets] Error fetching hospital data:', error);
-    throw error;
+    // Provide more specific error message
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    if (errorMessage.includes('Unable to parse range')) {
+      throw new Error('Hospital sheet "USAHospitals-1" not found. Please check the sheet name in Google Sheets.');
+    }
+    throw new Error(`Failed to fetch hospital data: ${errorMessage}`);
   }
 }
 

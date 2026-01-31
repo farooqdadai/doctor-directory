@@ -6,6 +6,39 @@ This document tracks all changes made to the project with each commit for clarit
 
 ## Commit History (Newest First)
 
+### `b01f1f0` - fix: Add error handling to hospitals page
+**Date:** January 31, 2026
+
+**Changes:**
+- Added error handling to `/hospitals` page to prevent server crashes
+- Page now displays user-friendly error message instead of crashing
+- Improved error messages in `fetchHospitalsFromSheets()` with specific guidance
+- Helps diagnose issues like missing sheet names
+
+**Files Modified:**
+- `app/hospitals/page.tsx` - Added try-catch with error state display
+- `lib/data/sheets.ts` - Improved error messages for sheet fetch failures
+
+**Error Handling Added:**
+- Catches Promise.all failures gracefully
+- Shows "Unable to load hospitals" with error details
+- Provides "Try Again" button for users
+
+---
+
+### `c28c003` - docs: Add process.md and update sheet name to USA-doctors-data-1
+**Date:** January 31, 2026
+
+**Changes:**
+- Updated Google Sheet name from "Sheet1" to "USA-doctors-data-1" in sheets.ts
+- Created process.md documenting all commits and changes
+
+**Files Modified:**
+- `lib/data/sheets.ts` - Updated sheet range
+- `process.md` - Created with full commit history
+
+---
+
 ### `aa4ebe3` - feat: Add hospitals feature with listing and detail pages
 **Date:** January 31, 2026
 
