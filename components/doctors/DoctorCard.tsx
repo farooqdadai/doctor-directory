@@ -1,96 +1,138 @@
 import Link from 'next/link';
 import { Doctor } from '@/lib/types';
-import Badge from '../ui/Badge';
-import Card from '../ui/Card';
 
 interface DoctorCardProps {
   doctor: Doctor;
 }
 
 export default function DoctorCard({ doctor }: DoctorCardProps) {
+  // Get initials for avatar
+  const initials = `${doctor.firstName.charAt(0)}${doctor.lastName.charAt(0)}`;
+
+  // Get best available phone
+  const displayPhone = doctor.phone || doctor.directPhone || doctor.mobilePhone;
+
+  // Get best available email
+  const displayEmail = doctor.email || doctor.workEmail;
+
   return (
-    <Link href={`/doctor/${doctor.slug}`}>
-      <Card hover className="h-full">
+    <Link href={`/doctor/${doctor.slug}`} className="group">
+      <div className="relative bg-white rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-xl transition-all duration-300 overflow-hidden h-full">
+        {/* Gradient accent bar */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+
         <div className="p-6">
+          {/* Header with avatar and badges */}
           <div className="flex items-start gap-4">
-            {/* Avatar placeholder */}
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-2xl font-bold text-blue-600">
-                {doctor.fullName.charAt(0)}
-              </span>
+            {/* Modern Avatar */}
+            <div className="relative">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                <span className="text-xl font-bold text-white">{initials}</span>
+              </div>
+              {doctor.isVerified && (
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center border-2 border-white">
+                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              )}
             </div>
 
             <div className="flex-1 min-w-0">
-              {/* Name and badges */}
-              <div className="flex items-start justify-between gap-2">
-                <h3 className="text-lg font-semibold text-gray-900 truncate">
-                  {doctor.fullName}
-                </h3>
-                <div className="flex gap-1 flex-shrink-0">
-                  {doctor.isFeatured && (
-                    <Badge variant="featured">
-                      <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      Featured
-                    </Badge>
-                  )}
-                  {doctor.isVerified && (
-                    <Badge variant="verified">
-                      <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      Verified
-                    </Badge>
-                  )}
-                </div>
-              </div>
+              {/* Name */}
+              <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors truncate">
+                {doctor.fullName}
+              </h3>
 
               {/* Specialty */}
-              <p className="text-blue-600 font-medium mt-1">
+              <p className="text-blue-600 font-medium text-sm mt-0.5">
                 {doctor.specialty}
-                {doctor.subSpecialty && (
-                  <span className="text-gray-500 font-normal"> - {doctor.subSpecialty}</span>
-                )}
               </p>
 
-              {/* Practice Name */}
-              {doctor.practiceName && (
-                <p className="text-gray-600 text-sm mt-1 truncate">{doctor.practiceName}</p>
-              )}
-
               {/* Location */}
-              <p className="text-gray-500 text-sm mt-2 flex items-center">
-                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center gap-1 mt-1 text-gray-500 text-sm">
+                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                {doctor.city}, {doctor.state}
-              </p>
+                <span className="truncate">{doctor.city}, {doctor.state}</span>
+              </div>
             </div>
           </div>
 
-          {/* Contact info */}
-          <div className="flex items-center gap-4 mt-4 pt-4 border-t border-gray-100">
-            {doctor.phone && (
-              <span className="text-sm text-gray-600 flex items-center">
-                <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+          {/* Info Pills */}
+          <div className="flex flex-wrap gap-2 mt-4">
+            {doctor.hospitalAffiliation && (
+              <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-purple-50 text-purple-700 text-xs font-medium">
+                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
-                {doctor.phone}
+                <span className="truncate max-w-[150px]">{doctor.hospitalAffiliation}</span>
               </span>
             )}
-            {doctor.website && (
-              <span className="text-sm text-blue-600 flex items-center">
-                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+            {doctor.practiceName && !doctor.hospitalAffiliation && (
+              <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 text-xs font-medium">
+                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
-                Website
+                <span className="truncate max-w-[150px]">{doctor.practiceName}</span>
+              </span>
+            )}
+            {doctor.licenseState && (
+              <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-green-50 text-green-700 text-xs font-medium">
+                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                Licensed: {doctor.licenseState}
               </span>
             )}
           </div>
+
+          {/* Contact Info */}
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {displayPhone && (
+                  <div className="flex items-center text-gray-600 text-sm">
+                    <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center mr-2">
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      </svg>
+                    </div>
+                    <span className="hidden sm:inline">{displayPhone}</span>
+                  </div>
+                )}
+                {displayEmail && (
+                  <div className="flex items-center text-gray-600 text-sm">
+                    <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center">
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                  </div>
+                )}
+                {doctor.linkedin && (
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                      <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                      </svg>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* View Profile Arrow */}
+              <div className="flex items-center text-blue-600 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="mr-1">View</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </div>
         </div>
-      </Card>
+      </div>
     </Link>
   );
 }

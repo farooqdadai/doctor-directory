@@ -12,19 +12,22 @@ export default function FeaturedDoctors({ doctors }: FeaturedDoctorsProps) {
   }
 
   return (
-    <section className="py-16">
+    <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900">Featured Doctors</h2>
-            <p className="text-gray-600 mt-2">Top-rated healthcare professionals</p>
+            <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider">Top Providers</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2">Verified Healthcare Professionals</h2>
+            <p className="text-gray-600 mt-3 max-w-2xl">
+              Browse our directory of verified providers with confirmed credentials
+            </p>
           </div>
           <Link
-            href="/doctors?featured=true"
-            className="hidden sm:inline-flex items-center text-blue-600 hover:text-blue-700 font-medium"
+            href="/doctors?verified=true"
+            className="hidden md:inline-flex items-center mt-4 md:mt-0 px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium shadow-sm"
           >
-            View all
-            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            View All Providers
+            <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </Link>
@@ -36,13 +39,13 @@ export default function FeaturedDoctors({ doctors }: FeaturedDoctorsProps) {
           ))}
         </div>
 
-        <div className="text-center mt-8 sm:hidden">
+        <div className="text-center mt-10 md:hidden">
           <Link
-            href="/doctors?featured=true"
-            className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium"
+            href="/doctors?verified=true"
+            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium shadow-sm"
           >
-            View all featured doctors
-            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            View All Providers
+            <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </Link>

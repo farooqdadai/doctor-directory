@@ -19,17 +19,12 @@ function getGoogleSheetsClient() {
     throw new Error('Google Sheets credentials not configured');
   }
 
-  // Handle different formats of the private key from environment variables
-  // Vercel may store \n as literal backslash-n, we need to convert to actual newlines
   privateKey = privateKey
     .replace(/\\n/g, '\n')
     .replace(/\\r/g, '')
-    .replace(/"/g, ''); // Remove any surrounding quotes
+    .replace(/"/g, '');
 
-  // Log key info for debugging (not the actual key)
   console.log('[Sheets] Private key length:', privateKey.length);
-  console.log('[Sheets] Key starts with:', privateKey.substring(0, 30));
-  console.log('[Sheets] Key ends with:', privateKey.substring(privateKey.length - 30));
 
   const auth = new google.auth.JWT({
     email,
@@ -40,9 +35,14 @@ function getGoogleSheetsClient() {
   return google.sheets({ version: 'v4', auth });
 }
 
+// Helper to get cell value safely
+function getCell(row: string[], index: number): string | null {
+  const value = row[index]?.toString().trim();
+  return value && value.length > 0 ? value : null;
+}
+
 // Fetch all doctors from Google Sheets
 export async function fetchDoctorsFromSheets(): Promise<Doctor[]> {
-  // Return cached data if still valid
   if (cachedDoctors && Date.now() - cacheTimestamp < CACHE_DURATION) {
     console.log('[Sheets] Returning cached data');
     return cachedDoctors;
@@ -60,7 +60,7 @@ export async function fetchDoctorsFromSheets(): Promise<Doctor[]> {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: 'Sheet1!A:O', // Columns A through O
+      range: 'Sheet1!A:AG', // Columns A through AG (33 columns)
     });
 
     const rows = response.data.values;
@@ -69,45 +69,125 @@ export async function fetchDoctorsFromSheets(): Promise<Doctor[]> {
       return [];
     }
 
-    // Skip header row, parse data
+    // Column mapping based on new structure:
+    // A(0): First Name_1
+    // B(1): Middle Name
+    // C(2): Last Name_1
+    // D(3): Primary Specialty
+    // E(4): Definitive Email
+    // F(5): Work Email
+    // G(6): Personal Email
+    // H(7): Definitive Number
+    // I(8): Direct Phone Number
+    // J(9): Mobile phone
+    // K(10): LinkedIn Contact Profile URL
+    // L(11): Provider License State
+    // M(12): City
+    // N(13): State
+    // O(14): Practice Location Name
+    // P(15): Primary Hospital Affiliation
+    // Q(16): NPI
+    // R(17): Company
+    // S(18): Person Street
+    // T(19): Person City
+    // U(20): Person State
+    // V(21): Person Zip Code
+    // W(22): Company Name
+    // X(23): Website
+    // Y(24): Company HQ Phone
+    // Z(25): Fax
+    // AA(26): LinkedIn Company Profile URL
+    // AB(27): Facebook Company Profile URL
+    // AC(28): Twitter Company Profile URL
+    // AD(29): Company Street Address
+    // AE(30): Company City
+    // AF(31): Company State
+    // AG(32): Company Zip Code
+
     const doctors: Doctor[] = [];
     for (let i = 1; i < rows.length; i++) {
       const row = rows[i];
-      if (!row[0] || !row[1]) continue; // Skip if no NPI or name
 
-      const npi = row[0]?.toString().trim() || '';
-      const fullName = row[1]?.toString().trim() || '';
-      const specialty = row[2]?.toString().trim() || 'General Practice';
-      const city = row[6]?.toString().trim() || '';
-      const state = row[7]?.toString().trim() || '';
+      const firstName = getCell(row, 0) || '';
+      const middleName = getCell(row, 1);
+      const lastName = getCell(row, 2) || '';
+      const specialty = getCell(row, 3) || 'General Practice';
+      const city = getCell(row, 12) || '';
+      const state = getCell(row, 13) || '';
+      const npi = getCell(row, 16) || '';
 
-      if (!npi || !fullName || !city || !state) continue;
+      // Skip rows without essential data
+      if (!firstName || !lastName || !city || !state) continue;
+
+      // Build full name
+      const fullName = middleName
+        ? `${firstName} ${middleName} ${lastName}`
+        : `${firstName} ${lastName}`;
 
       const now = new Date().toISOString();
-      const rawStatus = row[11]?.toString().trim() || 'Active';
-      const profileStatus: 'Active' | 'Inactive' = rawStatus === 'Inactive' ? 'Inactive' : 'Active';
 
       const doctor: Doctor = {
         id: i,
-        npi,
+        npi: npi || `TEMP-${i}`,
+
+        // Name fields
+        firstName,
+        middleName,
+        lastName,
         fullName,
-        slug: generateDoctorSlug(fullName, npi),
+        slug: generateDoctorSlug(fullName, npi || `temp-${i}`),
+
+        // Professional info
         specialty,
         specialtySlug: slugify(specialty),
-        subSpecialty: row[3]?.toString().trim() || null,
-        practiceName: row[4]?.toString().trim() || null,
-        website: row[5]?.toString().trim() || null,
+        licenseState: getCell(row, 11),
+        hospitalAffiliation: getCell(row, 15),
+
+        // Contact info
+        email: getCell(row, 4),
+        workEmail: getCell(row, 5),
+        personalEmail: getCell(row, 6),
+        phone: getCell(row, 7),
+        directPhone: getCell(row, 8),
+        mobilePhone: getCell(row, 9),
+        fax: getCell(row, 25),
+        linkedin: getCell(row, 10),
+
+        // Person Address
+        personStreet: getCell(row, 18),
+        personCity: getCell(row, 19),
+        personState: getCell(row, 20),
+        personZip: getCell(row, 21),
+
+        // Location (for search/display)
         city,
         citySlug: slugify(city),
         state,
         stateSlug: state.toLowerCase(),
-        email: row[8]?.toString().trim() || null,
-        phone: row[9]?.toString().trim() || null,
-        linkedin: row[10]?.toString().trim() || null,
-        profileStatus,
-        isVerified: row[12]?.toString().toLowerCase() === 'true' || row[12]?.toString() === '1',
-        isFeatured: row[13]?.toString().toLowerCase() === 'true' || row[13]?.toString() === '1',
-        priority: parseInt(row[14]?.toString() || '50', 10),
+
+        // Practice/Company info
+        practiceName: getCell(row, 14),
+        company: getCell(row, 17),
+        companyName: getCell(row, 22),
+        website: getCell(row, 23),
+        companyPhone: getCell(row, 24),
+        companyLinkedin: getCell(row, 26),
+        companyFacebook: getCell(row, 27),
+        companyTwitter: getCell(row, 28),
+
+        // Company Address
+        companyStreet: getCell(row, 29),
+        companyCity: getCell(row, 30),
+        companyState: getCell(row, 31),
+        companyZip: getCell(row, 32),
+
+        // Status flags (default values since not in sheet)
+        profileStatus: 'Active',
+        isVerified: !!npi, // Verified if has NPI
+        isFeatured: false,
+        priority: 50,
+
+        // Timestamps
         createdAt: now,
         updatedAt: now,
       };
@@ -117,7 +197,6 @@ export async function fetchDoctorsFromSheets(): Promise<Doctor[]> {
 
     console.log(`[Sheets] Fetched ${doctors.length} doctors`);
 
-    // Update cache
     cachedDoctors = doctors;
     cacheTimestamp = Date.now();
 
@@ -142,8 +221,10 @@ function sortDoctors(doctors: Doctor[], sortBy: string = 'rank'): Doctor[] {
   return [...doctors].sort((a, b) => {
     switch (sortBy) {
       case 'name':
+      case 'a_z':
         return a.fullName.localeCompare(b.fullName);
       case 'rank':
+      case 'best_match':
       default:
         const scoreA = calculateScore(a);
         const scoreB = calculateScore(b);
@@ -205,8 +286,9 @@ export async function getLocations(): Promise<Location[]> {
 // Get featured doctors
 export async function getFeaturedDoctors(limit: number = 6): Promise<Doctor[]> {
   const doctors = await fetchDoctorsFromSheets();
+  // Since we don't have featured flag, return top verified doctors
   return sortDoctors(
-    doctors.filter(d => d.profileStatus === 'Active' && d.isFeatured)
+    doctors.filter(d => d.profileStatus === 'Active' && d.isVerified)
   ).slice(0, limit);
 }
 
@@ -222,7 +304,7 @@ export async function getDoctorBySlug(slug: string): Promise<Doctor | null> {
   return doctors.find(d => d.slug === slug && d.profileStatus === 'Active') || null;
 }
 
-// Search doctors
+// Search parameters
 export interface SearchParams {
   query?: string;
   specialty?: string;
@@ -235,6 +317,7 @@ export interface SearchParams {
   limit?: number;
 }
 
+// Search results
 export interface SearchResults {
   doctors: Doctor[];
   total: number;
@@ -265,9 +348,13 @@ export async function searchDoctors(params: SearchParams): Promise<SearchResults
     const q = query.toLowerCase();
     doctors = doctors.filter(d =>
       d.fullName.toLowerCase().includes(q) ||
+      d.firstName.toLowerCase().includes(q) ||
+      d.lastName.toLowerCase().includes(q) ||
       d.specialty.toLowerCase().includes(q) ||
       d.city.toLowerCase().includes(q) ||
-      (d.practiceName && d.practiceName.toLowerCase().includes(q))
+      (d.practiceName && d.practiceName.toLowerCase().includes(q)) ||
+      (d.companyName && d.companyName.toLowerCase().includes(q)) ||
+      (d.hospitalAffiliation && d.hospitalAffiliation.toLowerCase().includes(q))
     );
   }
 
@@ -276,11 +363,11 @@ export async function searchDoctors(params: SearchParams): Promise<SearchResults
   }
 
   if (state) {
-    doctors = doctors.filter(d => d.stateSlug === state);
+    doctors = doctors.filter(d => d.stateSlug === state.toLowerCase());
   }
 
   if (city) {
-    doctors = doctors.filter(d => d.citySlug === city);
+    doctors = doctors.filter(d => d.citySlug === city.toLowerCase());
   }
 
   if (verifiedOnly) {
@@ -319,7 +406,6 @@ export async function getDoctorsByLocation(state: string, city: string, limit?: 
 export async function getRelatedDoctors(doctor: Doctor, limit: number = 3): Promise<Doctor[]> {
   const doctors = await fetchDoctorsFromSheets();
 
-  // Find doctors in same specialty or location, excluding current
   const related = doctors
     .filter(d =>
       d.npi !== doctor.npi &&

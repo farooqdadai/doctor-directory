@@ -1,27 +1,57 @@
 import { getDb } from './index';
-import { Doctor, DoctorRow, SearchParams, SearchResults, Specialty, Location } from '../types';
+import { Doctor, SearchParams, SearchResults, Specialty, Location } from '../types';
 import { slugify, generateDoctorSlug } from '../utils/slugify';
 import { Row } from '@libsql/client';
 
 // Convert database row to Doctor object
+// NOTE: This is Phase 2 code - MVP uses Google Sheets directly via sheets.ts
 function rowToDoctor(row: Row): Doctor {
+  const fullName = row.full_name as string;
+  const nameParts = fullName.split(' ');
+  const firstName = nameParts[0] || '';
+  const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
+  const middleName = nameParts.length > 2 ? nameParts.slice(1, -1).join(' ') : null;
+
   return {
     id: row.id as number,
     npi: row.npi as string,
-    fullName: row.full_name as string,
+    firstName,
+    middleName,
+    lastName,
+    fullName,
     slug: row.slug as string,
     specialty: row.specialty as string,
     specialtySlug: row.specialty_slug as string,
-    subSpecialty: row.sub_specialty as string | null,
-    practiceName: row.practice_name as string | null,
-    website: row.website as string | null,
+    licenseState: null,
+    hospitalAffiliation: null,
+    email: row.email as string | null,
+    workEmail: null,
+    personalEmail: null,
+    phone: row.phone as string | null,
+    directPhone: null,
+    mobilePhone: null,
+    fax: null,
+    linkedin: row.linkedin as string | null,
+    personStreet: null,
+    personCity: null,
+    personState: null,
+    personZip: null,
     city: row.city as string,
     citySlug: row.city_slug as string,
     state: row.state as string,
     stateSlug: row.state_slug as string,
-    email: row.email as string | null,
-    phone: row.phone as string | null,
-    linkedin: row.linkedin as string | null,
+    practiceName: row.practice_name as string | null,
+    company: null,
+    companyName: null,
+    website: row.website as string | null,
+    companyPhone: null,
+    companyLinkedin: null,
+    companyFacebook: null,
+    companyTwitter: null,
+    companyStreet: null,
+    companyCity: null,
+    companyState: null,
+    companyZip: null,
     profileStatus: row.profile_status as 'Active' | 'Inactive',
     isVerified: row.is_verified === 1,
     isFeatured: row.is_featured === 1,

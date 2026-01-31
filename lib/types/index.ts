@@ -1,53 +1,68 @@
-// Core doctor type
+// Core doctor type - Extended with all Google Sheet fields
 export interface Doctor {
   id: number;
   npi: string;
-  fullName: string;
+
+  // Name fields
+  firstName: string;
+  middleName: string | null;
+  lastName: string;
+  fullName: string; // Computed: firstName + middleName + lastName
   slug: string;
+
+  // Professional info
   specialty: string;
   specialtySlug: string;
-  subSpecialty: string | null;
-  practiceName: string | null;
-  website: string | null;
+  licenseState: string | null;
+  hospitalAffiliation: string | null;
+
+  // Contact info
+  email: string | null; // Definitive Email
+  workEmail: string | null;
+  personalEmail: string | null;
+  phone: string | null; // Definitive Number
+  directPhone: string | null;
+  mobilePhone: string | null;
+  fax: string | null;
+  linkedin: string | null;
+
+  // Person Address
+  personStreet: string | null;
+  personCity: string | null;
+  personState: string | null;
+  personZip: string | null;
+
+  // Location (for search/display)
   city: string;
   citySlug: string;
   state: string;
   stateSlug: string;
-  email: string | null;
-  phone: string | null;
-  linkedin: string | null;
+
+  // Practice/Company info
+  practiceName: string | null; // Practice Location Name
+  company: string | null;
+  companyName: string | null;
+  website: string | null;
+  companyPhone: string | null;
+  companyLinkedin: string | null;
+  companyFacebook: string | null;
+  companyTwitter: string | null;
+
+  // Company Address
+  companyStreet: string | null;
+  companyCity: string | null;
+  companyState: string | null;
+  companyZip: string | null;
+
+  // Status flags
   profileStatus: 'Active' | 'Inactive';
   isVerified: boolean;
   isFeatured: boolean;
   priority: number;
+
+  // Timestamps
   createdAt: string;
   updatedAt: string;
-}
-
-// Database row type (snake_case)
-export interface DoctorRow {
-  id: number;
-  npi: string;
-  full_name: string;
-  slug: string;
-  specialty: string;
-  specialty_slug: string;
-  sub_specialty: string | null;
-  practice_name: string | null;
-  website: string | null;
-  city: string;
-  city_slug: string;
-  state: string;
-  state_slug: string;
-  email: string | null;
-  phone: string | null;
-  linkedin: string | null;
-  profile_status: string;
-  is_verified: number;
-  is_featured: number;
-  priority: number;
-  created_at: string;
-  updated_at: string;
 }
 
 // Search parameters
@@ -79,7 +94,7 @@ export interface Specialty {
   name: string;
   slug: string;
   count: number;
-  doctorCount?: number; // alias for count (for backwards compatibility)
+  doctorCount?: number;
 }
 
 // Location type
@@ -90,7 +105,7 @@ export interface Location {
   state: string;
   stateSlug: string;
   count: number;
-  doctorCount?: number; // alias for count (for backwards compatibility)
+  doctorCount?: number;
 }
 
 // Sync stats
@@ -102,7 +117,7 @@ export interface SyncStats {
   errors: string[];
 }
 
-// Google Sheets row
+// Sheet row for legacy sync (Phase 2 - database sync)
 export interface SheetRow {
   npi: string;
   fullName: string;
