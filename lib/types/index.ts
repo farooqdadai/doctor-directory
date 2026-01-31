@@ -108,6 +108,86 @@ export interface Location {
   doctorCount?: number;
 }
 
+// Hospital type - From USAHospitals-1 sheet
+export interface Hospital {
+  id: string; // HOSPITAL_ID
+  name: string;
+  slug: string;
+
+  // Address
+  address: string;
+  city: string;
+  citySlug: string;
+  state: string;
+  stateSlug: string;
+  zip: string;
+  county: string | null;
+
+  // Contact
+  telephone: string | null;
+  website: string | null;
+
+  // Hospital Info
+  type: string | null; // Hospital type (General, Specialty, etc.)
+  typeSlug: string | null;
+  beds: number | null;
+  trauma: string | null; // Trauma level
+  services: string | null;
+
+  // Google Info
+  googleMapLink: string | null;
+  googleRating: number | null;
+
+  // Accessibility & Amenities
+  accessibilityCheck: string | null;
+  accessibilityUncheck: string | null;
+  payments: string | null;
+  amenitiesCheck: string | null;
+  parkingCheck: string | null;
+
+  // Branding
+  logo: string | null;
+
+  // Social Media
+  facebook: string | null;
+  instagram: string | null;
+  linkedin: string | null;
+  twitter: string | null; // X
+  youtube: string | null;
+}
+
+// Hospital search parameters
+export interface HospitalSearchParams {
+  query?: string;
+  state?: string;
+  city?: string;
+  type?: string;
+  county?: string;
+  hasTrauma?: boolean;
+  minBeds?: number;
+  maxBeds?: number;
+  sort?: HospitalSortOption;
+  page?: number;
+  limit?: number;
+}
+
+export type HospitalSortOption = 'name_asc' | 'name_desc' | 'rating' | 'beds';
+
+// Hospital search results
+export interface HospitalSearchResults {
+  hospitals: Hospital[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
+// Hospital type (category)
+export interface HospitalType {
+  name: string;
+  slug: string;
+  count: number;
+}
+
 // Sync stats
 export interface SyncStats {
   processed: number;

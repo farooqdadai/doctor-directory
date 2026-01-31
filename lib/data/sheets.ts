@@ -1,9 +1,9 @@
 import { google } from 'googleapis';
 import { slugify, generateDoctorSlug } from '../utils/slugify';
-import type { Doctor, Specialty, Location } from '../types';
+import type { Doctor, Specialty, Location, Hospital, HospitalSearchParams, HospitalSearchResults, HospitalType } from '../types';
 
 // Re-export types
-export type { Doctor, Specialty, Location };
+export type { Doctor, Specialty, Location, Hospital, HospitalType };
 
 // Cache for Google Sheets data (refreshes every 5 minutes)
 let cachedDoctors: Doctor[] | null = null;
@@ -414,4 +414,337 @@ export async function getRelatedDoctors(doctor: Doctor, limit: number = 3): Prom
     );
 
   return sortDoctors(related).slice(0, limit);
+}
+
+// ============================================
+// HOSPITAL DATA FUNCTIONS
+// ============================================
+
+// Cache for Hospitals data
+let cachedHospitals: Hospital[] | null = null;
+let hospitalCacheTimestamp: number = 0;
+
+// Fetch all hospitals from Google Sheets
+export async function fetchHospitalsFromSheets(): Promise<Hospital[]> {
+  if (cachedHospitals && Date.now() - hospitalCacheTimestamp < CACHE_DURATION) {
+    console.log('[Sheets] Returning cached hospital data');
+    return cachedHospitals;
+  }
+
+  console.log('[Sheets] Fetching fresh hospital data from Google Sheets...');
+
+  const sheets = getGoogleSheetsClient();
+  const spreadsheetId = process.env.GOOGLE_SHEET_ID;
+
+  if (!spreadsheetId) {
+    throw new Error('GOOGLE_SHEET_ID not configured');
+  }
+
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: 'USAHospitals-1!A:Z', // Columns A through Z (26 columns)
+    });
+
+    const rows = response.data.values;
+    if (!rows || rows.length < 2) {
+      console.log('[Sheets] No hospital data found');
+      return [];
+    }
+
+    // Column mapping based on provided structure:
+    // A(0): HOSPITAL_ID
+    // B(1): NAME
+    // C(2): ADDRESS
+    // D(3): CITY
+    // E(4): STATE
+    // F(5): ZIP
+    // G(6): COUNTY
+    // H(7): TELEPHONE
+    // I(8): TYPE
+    // J(9): WEBSITE
+    // K(10): BEDS
+    // L(11): TRAUMA
+    // M(12): Services
+    // N(13): Google Map Link
+    // O(14): Google Rating
+    // P(15): Accessibility Check
+    // Q(16): Accessibility UnCheck
+    // R(17): Payments
+    // S(18): Amenities Check
+    // T(19): Parking Check
+    // U(20): Logo
+    // V(21): Facebook
+    // W(22): Instagram
+    // X(23): LinkedIn
+    // Y(24): X (Twitter)
+    // Z(25): YouTube
+
+    const hospitals: Hospital[] = [];
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
+
+      const hospitalId = getCell(row, 0);
+      const name = getCell(row, 1);
+      const city = getCell(row, 3);
+      const state = getCell(row, 4);
+
+      // Skip rows without essential data
+      if (!name || !city || !state) continue;
+
+      const hospitalType = getCell(row, 8);
+      const bedsStr = getCell(row, 10);
+      const ratingStr = getCell(row, 14);
+
+      const hospital: Hospital = {
+        id: hospitalId || `H-${i}`,
+        name,
+        slug: slugify(name) + '-' + slugify(city) + '-' + state.toLowerCase(),
+
+        // Address
+        address: getCell(row, 2) || '',
+        city,
+        citySlug: slugify(city),
+        state,
+        stateSlug: state.toLowerCase(),
+        zip: getCell(row, 5) || '',
+        county: getCell(row, 6),
+
+        // Contact
+        telephone: getCell(row, 7),
+        website: getCell(row, 9),
+
+        // Hospital Info
+        type: hospitalType,
+        typeSlug: hospitalType ? slugify(hospitalType) : null,
+        beds: bedsStr ? parseInt(bedsStr, 10) || null : null,
+        trauma: getCell(row, 11),
+        services: getCell(row, 12),
+
+        // Google Info
+        googleMapLink: getCell(row, 13),
+        googleRating: ratingStr ? parseFloat(ratingStr) || null : null,
+
+        // Accessibility & Amenities
+        accessibilityCheck: getCell(row, 15),
+        accessibilityUncheck: getCell(row, 16),
+        payments: getCell(row, 17),
+        amenitiesCheck: getCell(row, 18),
+        parkingCheck: getCell(row, 19),
+
+        // Branding
+        logo: getCell(row, 20),
+
+        // Social Media
+        facebook: getCell(row, 21),
+        instagram: getCell(row, 22),
+        linkedin: getCell(row, 23),
+        twitter: getCell(row, 24),
+        youtube: getCell(row, 25),
+      };
+
+      hospitals.push(hospital);
+    }
+
+    console.log(`[Sheets] Fetched ${hospitals.length} hospitals`);
+
+    cachedHospitals = hospitals;
+    hospitalCacheTimestamp = Date.now();
+
+    return hospitals;
+  } catch (error) {
+    console.error('[Sheets] Error fetching hospital data:', error);
+    throw error;
+  }
+}
+
+// Sort hospitals
+function sortHospitals(hospitals: Hospital[], sortBy: string = 'name_asc'): Hospital[] {
+  return [...hospitals].sort((a, b) => {
+    switch (sortBy) {
+      case 'name_desc':
+        return b.name.localeCompare(a.name);
+      case 'rating':
+        const ratingA = a.googleRating || 0;
+        const ratingB = b.googleRating || 0;
+        return ratingB - ratingA;
+      case 'beds':
+        const bedsA = a.beds || 0;
+        const bedsB = b.beds || 0;
+        return bedsB - bedsA;
+      case 'name_asc':
+      default:
+        return a.name.localeCompare(b.name);
+    }
+  });
+}
+
+// Search hospitals
+export async function searchHospitals(params: HospitalSearchParams): Promise<HospitalSearchResults> {
+  const {
+    query,
+    state,
+    city,
+    type,
+    county,
+    hasTrauma = false,
+    minBeds,
+    maxBeds,
+    sort = 'name_asc',
+    page = 1,
+    limit = 12,
+  } = params;
+
+  let hospitals = await fetchHospitalsFromSheets();
+
+  // Apply filters
+  if (query) {
+    const q = query.toLowerCase();
+    hospitals = hospitals.filter(h =>
+      h.name.toLowerCase().includes(q) ||
+      h.city.toLowerCase().includes(q) ||
+      (h.county && h.county.toLowerCase().includes(q)) ||
+      (h.type && h.type.toLowerCase().includes(q)) ||
+      (h.services && h.services.toLowerCase().includes(q))
+    );
+  }
+
+  if (state) {
+    hospitals = hospitals.filter(h => h.stateSlug === state.toLowerCase());
+  }
+
+  if (city) {
+    hospitals = hospitals.filter(h => h.citySlug === city.toLowerCase());
+  }
+
+  if (type) {
+    hospitals = hospitals.filter(h => h.typeSlug === type.toLowerCase());
+  }
+
+  if (county) {
+    hospitals = hospitals.filter(h => h.county && slugify(h.county) === county.toLowerCase());
+  }
+
+  if (hasTrauma) {
+    hospitals = hospitals.filter(h => h.trauma && h.trauma.length > 0);
+  }
+
+  if (minBeds !== undefined) {
+    hospitals = hospitals.filter(h => h.beds && h.beds >= minBeds);
+  }
+
+  if (maxBeds !== undefined) {
+    hospitals = hospitals.filter(h => h.beds && h.beds <= maxBeds);
+  }
+
+  // Sort
+  hospitals = sortHospitals(hospitals, sort);
+
+  // Paginate
+  const total = hospitals.length;
+  const totalPages = Math.ceil(total / limit);
+  const offset = (page - 1) * limit;
+  hospitals = hospitals.slice(offset, offset + limit);
+
+  return { hospitals, total, page, totalPages };
+}
+
+// Get hospital by slug
+export async function getHospitalBySlug(slug: string): Promise<Hospital | null> {
+  const hospitals = await fetchHospitalsFromSheets();
+  return hospitals.find(h => h.slug === slug) || null;
+}
+
+// Get all hospital types with counts
+export async function getHospitalTypes(): Promise<HospitalType[]> {
+  const hospitals = await fetchHospitalsFromSheets();
+  const typeMap = new Map<string, { name: string; slug: string; count: number }>();
+
+  for (const hospital of hospitals) {
+    if (!hospital.type) continue;
+
+    const slug = hospital.typeSlug || slugify(hospital.type);
+    const existing = typeMap.get(slug);
+    if (existing) {
+      existing.count++;
+    } else {
+      typeMap.set(slug, {
+        name: hospital.type,
+        slug,
+        count: 1,
+      });
+    }
+  }
+
+  return Array.from(typeMap.values()).sort((a, b) => b.count - a.count);
+}
+
+// Get hospital locations (states with counts)
+export async function getHospitalLocations(): Promise<Location[]> {
+  const hospitals = await fetchHospitalsFromSheets();
+  const locationMap = new Map<string, Location>();
+
+  for (const hospital of hospitals) {
+    const key = `${hospital.stateSlug}-${hospital.citySlug}`;
+    const existing = locationMap.get(key);
+    if (existing) {
+      existing.count++;
+    } else {
+      locationMap.set(key, {
+        city: hospital.city,
+        citySlug: hospital.citySlug,
+        state: hospital.state,
+        stateSlug: hospital.stateSlug,
+        count: 1,
+      });
+    }
+  }
+
+  return Array.from(locationMap.values()).sort((a, b) => b.count - a.count);
+}
+
+// Get hospital states (unique states with counts)
+export async function getHospitalStates(): Promise<{ state: string; stateSlug: string; count: number }[]> {
+  const hospitals = await fetchHospitalsFromSheets();
+  const stateMap = new Map<string, { state: string; stateSlug: string; count: number }>();
+
+  for (const hospital of hospitals) {
+    const existing = stateMap.get(hospital.stateSlug);
+    if (existing) {
+      existing.count++;
+    } else {
+      stateMap.set(hospital.stateSlug, {
+        state: hospital.state,
+        stateSlug: hospital.stateSlug,
+        count: 1,
+      });
+    }
+  }
+
+  return Array.from(stateMap.values()).sort((a, b) => b.count - a.count);
+}
+
+// Get featured hospitals (top rated)
+export async function getFeaturedHospitals(limit: number = 6): Promise<Hospital[]> {
+  const hospitals = await fetchHospitalsFromSheets();
+  return sortHospitals(hospitals, 'rating').slice(0, limit);
+}
+
+// Get total hospital count
+export async function getTotalHospitalCount(): Promise<number> {
+  const hospitals = await fetchHospitalsFromSheets();
+  return hospitals.length;
+}
+
+// Get related hospitals (same state/city or type)
+export async function getRelatedHospitals(hospital: Hospital, limit: number = 3): Promise<Hospital[]> {
+  const hospitals = await fetchHospitalsFromSheets();
+
+  const related = hospitals
+    .filter(h =>
+      h.id !== hospital.id &&
+      (h.stateSlug === hospital.stateSlug || h.typeSlug === hospital.typeSlug)
+    );
+
+  return sortHospitals(related, 'rating').slice(0, limit);
 }

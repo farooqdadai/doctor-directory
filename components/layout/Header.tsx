@@ -62,6 +62,16 @@ export default function Header() {
             >
               Find Providers
             </Link>
+            <Link
+              href="/hospitals"
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                isActive('/hospitals') || isActive('/hospital')
+                  ? 'bg-emerald-50 text-emerald-600'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}
+            >
+              Hospitals
+            </Link>
           </nav>
 
           {/* CTA Button */}
@@ -119,6 +129,17 @@ export default function Header() {
                 }`}
               >
                 Find Providers
+              </Link>
+              <Link
+                href="/hospitals"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                  isActive('/hospitals') || isActive('/hospital')
+                    ? 'bg-emerald-50 text-emerald-600'
+                    : 'text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                Hospitals
               </Link>
               <Link
                 href="/doctors?verified=true"
