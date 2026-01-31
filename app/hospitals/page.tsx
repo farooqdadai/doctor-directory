@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { searchHospitals, getHospitalTypes, getHospitalStates, getTotalHospitalCount } from '@/lib/data/sheets';
-import HospitalCard from '@/components/hospitals/HospitalCard';
+import HospitalResults from '@/components/hospitals/HospitalResults';
 import HospitalFilters from '@/components/hospitals/HospitalFilters';
 import HospitalSearchBar from '@/components/hospitals/HospitalSearchBar';
 
@@ -78,6 +78,9 @@ export default async function HospitalsPage({ searchParams }: PageProps) {
     if (typeObj) activeFilters.push(typeObj.name);
   }
   if (hasTrauma) activeFilters.push('Trauma Center');
+
+  // Generate a search key for animations based on filter state
+  const searchKey = `${query}-${state}-${type}-${hasTrauma}-${sort}-${currentPage}`;
 
   return (
     <div className="bg-brand-50/30 min-h-screen">
@@ -158,11 +161,7 @@ export default async function HospitalsPage({ searchParams }: PageProps) {
               </div>
             ) : hospitals.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {hospitals.map((hospital) => (
-                    <HospitalCard key={hospital.id} hospital={hospital} />
-                  ))}
-                </div>
+                <HospitalResults hospitals={hospitals} searchKey={searchKey} />
 
                 {/* Pagination */}
                 {totalPages > 1 && (

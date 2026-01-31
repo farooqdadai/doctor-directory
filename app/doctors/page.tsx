@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { Suspense } from "react";
 import SearchBar from "@/components/search/SearchBar";
 import SearchFilters from "@/components/search/SearchFilters";
-import DoctorCard from "@/components/doctors/DoctorCard";
+import DoctorResults from "@/components/doctors/DoctorResults";
 import SortSelector from "@/components/doctors/SortSelector";
 import { searchDoctors, getSpecialties } from "@/lib/data/sheets";
 import { SortOption } from "@/lib/types";
@@ -106,7 +106,7 @@ function Pagination({
             href={getPageUrl(page)}
             className={`px-3 py-2 rounded-lg text-sm ${
               page === currentPage
-                ? "bg-blue-600 text-white"
+                ? "bg-brand-700 text-white"
                 : "text-gray-700 hover:bg-gray-100"
             }`}
           >
@@ -166,11 +166,18 @@ export default async function DoctorsPage({ searchParams }: PageProps) {
     title += ` in ${city ? `${city}, ` : ""}${state?.toUpperCase() || ""}`;
   }
 
+  // Generate a search key for animations based on filter state
+  const searchKey = `${query}-${specialty}-${state}-${city}-${verifiedOnly}-${featuredOnly}-${sort}-${page}`;
+
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-brand-50/30 min-h-screen">
       {/* Search Header */}
-      <div className="bg-white border-b border-gray-200 py-6">
+      <div className="bg-gradient-to-br from-brand-900 via-brand-700 to-brand-600 text-white py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-6">
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">Find Doctors</h1>
+            <p className="text-brand-100">Search our directory of healthcare professionals</p>
+          </div>
           <SearchBar defaultQuery={query} />
         </div>
       </div>
@@ -196,7 +203,7 @@ export default async function DoctorsPage({ searchParams }: PageProps) {
             {/* Results Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
+                <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
                 <p className="text-gray-600 mt-1">
                   {results.total} {results.total === 1 ? "doctor" : "doctors"}{" "}
                   found
@@ -210,11 +217,7 @@ export default async function DoctorsPage({ searchParams }: PageProps) {
             {/* Results Grid */}
             {results.doctors.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {results.doctors.map((doctor) => (
-                    <DoctorCard key={doctor.npi} doctor={doctor} />
-                  ))}
-                </div>
+                <DoctorResults doctors={results.doctors} searchKey={searchKey} />
 
                 <Pagination
                   currentPage={page}
@@ -253,7 +256,7 @@ export default async function DoctorsPage({ searchParams }: PageProps) {
                 </p>
                 <Link
                   href="/doctors"
-                  className="text-blue-600 hover:text-blue-700 font-medium"
+                  className="inline-flex items-center px-4 py-2 bg-brand-700 text-white rounded-xl hover:bg-brand-900 transition-colors"
                 >
                   Clear all filters
                 </Link>

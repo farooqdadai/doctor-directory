@@ -6,6 +6,35 @@ This document tracks all changes made to the project with each commit for clarit
 
 ## Commit History (Newest First)
 
+### feat: Add page transitions and filter animations
+**Date:** January 31, 2026
+
+**Changes:**
+- Added sleek page transitions using Framer Motion's AnimatePresence
+- Added smooth filter change animations for doctors and hospitals pages
+- Updated doctors page with brand colors and hero section
+- Created reusable animation components for list items
+
+**Files Created:**
+- `components/ui/PageTransition.tsx` - Wraps all pages with fade/slide animations on navigation
+- `components/ui/AnimatedList.tsx` - Staggered list animation with AnimatedListItem component
+- `components/ui/AnimatedResults.tsx` - Animates search results when filters change
+- `components/doctors/DoctorResults.tsx` - Client wrapper for animated doctor grid
+- `components/hospitals/HospitalResults.tsx` - Client wrapper for animated hospital grid
+
+**Files Modified:**
+- `app/layout.tsx` - Wrapped children with PageTransition component
+- `app/doctors/page.tsx` - Updated with brand colors, hero section, and DoctorResults animation wrapper
+- `app/hospitals/page.tsx` - Updated with HospitalResults animation wrapper
+
+**Animation Features:**
+- Page transitions: fade in/out with subtle y-axis movement on navigation
+- Filter change animations: smooth crossfade when search/filter params change
+- Staggered card entrance: cards animate in sequentially (0.06s delay between each)
+- Card scale animation: cards scale from 95% to 100% on entrance
+
+---
+
 ### `ee323ac` - feat: Update color palette to custom brand colors
 **Date:** January 31, 2026
 
