@@ -60,7 +60,7 @@ export async function fetchDoctorsFromSheets(): Promise<Doctor[]> {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: 'Sheet1!A:AG', // Columns A through AG (33 columns)
+      range: 'USA-doctors-data-1!A:AG', // Columns A through AG (33 columns)
     });
 
     const rows = response.data.values;
