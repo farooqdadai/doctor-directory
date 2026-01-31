@@ -6,6 +6,24 @@ This document tracks all changes made to the project with each commit for clarit
 
 ## Commit History (Newest First)
 
+### `8564fea` - fix: Add 'use client' directive to HospitalCard
+**Date:** January 31, 2026
+
+**Changes:**
+- Fixed "Event handlers cannot be passed to Client Component props" error
+- Added `'use client';` directive to HospitalCard.tsx
+- Component has onClick handlers that require client-side JavaScript
+
+**Files Modified:**
+- `components/hospitals/HospitalCard.tsx` - Added 'use client' directive
+
+**Root Cause:**
+- HospitalCard had onClick handlers (e.stopPropagation()) for contact links
+- Without 'use client', Next.js treats it as a Server Component
+- Server Components cannot have event handlers
+
+---
+
 ### `b01f1f0` - fix: Add error handling to hospitals page
 **Date:** January 31, 2026
 
