@@ -6,6 +6,38 @@ This document tracks all changes made to the project with each commit for clarit
 
 ## Commit History (Newest First)
 
+### `34c6fc0` - feat: Add Framer Motion animations and improve design consistency
+**Date:** January 31, 2026
+
+**Changes:**
+- Installed framer-motion package for smooth animations
+- Created shared animation utilities in `lib/motion.ts`
+- Updated HeroSection with entrance animations and floating badges
+- Updated DoctorCard with hover lift animation and consistent design
+- Updated HospitalCard with hover lift animation and consistent design
+- Updated Header with animated navigation and mobile menu transitions
+- Improved CTA buttons with hover/tap animations
+- Consistent design language: blue/indigo for doctors, emerald/teal for hospitals
+
+**Files Created:**
+- `lib/motion.ts` - Shared animation variants (fadeIn, staggerContainer, cardHover, etc.)
+
+**Files Modified:**
+- `components/home/HeroSection.tsx` - Added motion animations, improved layout
+- `components/doctors/DoctorCard.tsx` - Added motion hover, improved design
+- `components/hospitals/HospitalCard.tsx` - Added motion hover, improved design
+- `components/layout/Header.tsx` - Added nav transitions, mobile menu animations
+- `package.json` - Added framer-motion dependency
+
+**Animation Features:**
+- Staggered entrance animations on hero section
+- Card lift effect on hover (y: -4)
+- Floating badges with infinite animation
+- Smooth mobile menu open/close transitions
+- Active nav item background animation with layoutId
+
+---
+
 ### `8564fea` - fix: Add 'use client' directive to HospitalCard
 **Date:** January 31, 2026
 
