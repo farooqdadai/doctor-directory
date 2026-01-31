@@ -15,7 +15,7 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white/90 backdrop-blur-lg border-b border-gray-100/80 sticky top-0 z-50">
+    <header className="bg-white/90 backdrop-blur-lg border-b border-brand-100/80 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -23,7 +23,7 @@ export default function Header() {
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20 group-hover:shadow-blue-600/30 transition-shadow duration-300"
+              className="w-10 h-10 bg-gradient-to-br from-brand-900 to-brand-700 rounded-xl flex items-center justify-center shadow-lg shadow-brand-700/20 group-hover:shadow-brand-700/30 transition-shadow duration-300"
             >
               <svg
                 className="w-6 h-6 text-white"
@@ -50,23 +50,21 @@ export default function Header() {
             {[
               { href: '/', label: 'Home', checkActive: () => isActive('/') },
               { href: '/doctors', label: 'Find Providers', checkActive: () => isActive('/doctors') || isActive('/specialty') || isActive('/location') || isActive('/doctor') },
-              { href: '/hospitals', label: 'Hospitals', checkActive: () => isActive('/hospitals') || isActive('/hospital'), isHospital: true }
+              { href: '/hospitals', label: 'Hospitals', checkActive: () => isActive('/hospitals') || isActive('/hospital') }
             ].map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className={`relative px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                   item.checkActive()
-                    ? item.isHospital
-                      ? 'text-emerald-600'
-                      : 'text-blue-600'
+                    ? 'text-brand-900'
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
                 {item.checkActive() && (
                   <motion.span
                     layoutId="navBackground"
-                    className={`absolute inset-0 rounded-xl ${item.isHospital ? 'bg-emerald-50' : 'bg-blue-50'}`}
+                    className="absolute inset-0 rounded-xl bg-brand-50"
                     initial={false}
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                   />
@@ -81,7 +79,7 @@ export default function Header() {
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Link
                 href="/doctors"
-                className="hidden sm:inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold rounded-xl hover:shadow-lg hover:shadow-blue-600/25 transition-all duration-300"
+                className="hidden sm:inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-brand-900 to-brand-700 text-white text-sm font-semibold rounded-xl hover:shadow-lg hover:shadow-brand-700/25 transition-all duration-300"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -94,7 +92,7 @@ export default function Header() {
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl text-gray-600 hover:bg-gray-100 transition-colors"
+              className="md:hidden p-2 rounded-xl text-gray-600 hover:bg-brand-50 transition-colors"
             >
               <AnimatePresence mode="wait">
                 {mobileMenuOpen ? (
@@ -141,11 +139,11 @@ export default function Header() {
               transition={{ duration: 0.2, ease: "easeInOut" }}
               className="md:hidden overflow-hidden"
             >
-              <nav className="flex flex-col space-y-1 py-4 border-t border-gray-100">
+              <nav className="flex flex-col space-y-1 py-4 border-t border-brand-100">
                 {[
                   { href: '/', label: 'Home', active: isActive('/') },
                   { href: '/doctors', label: 'Find Providers', active: isActive('/doctors') },
-                  { href: '/hospitals', label: 'Hospitals', active: isActive('/hospitals') || isActive('/hospital'), isHospital: true },
+                  { href: '/hospitals', label: 'Hospitals', active: isActive('/hospitals') || isActive('/hospital') },
                   { href: '/doctors?verified=true', label: 'Verified Providers', active: false }
                 ].map((item, index) => (
                   <motion.div
@@ -159,9 +157,7 @@ export default function Header() {
                       onClick={() => setMobileMenuOpen(false)}
                       className={`block px-4 py-3 rounded-xl text-sm font-medium transition-colors duration-200 ${
                         item.active
-                          ? item.isHospital
-                            ? 'bg-emerald-50 text-emerald-600'
-                            : 'bg-blue-50 text-blue-600'
+                          ? 'bg-brand-50 text-brand-900'
                           : 'text-gray-600 hover:bg-gray-50'
                       }`}
                     >

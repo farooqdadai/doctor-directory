@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import SearchBar from '../search/SearchBar';
-import { fadeInUp, fadeInLeft, fadeInRight, staggerContainer, staggerItem, float } from '@/lib/motion';
+import { fadeInRight, staggerContainer, staggerItem, float } from '@/lib/motion';
 
 interface HeroSectionProps {
   totalDoctors?: number;
@@ -11,7 +11,7 @@ interface HeroSectionProps {
 
 export default function HeroSection({ totalDoctors = 0 }: HeroSectionProps) {
   return (
-    <section className="bg-gradient-to-b from-slate-50 via-white to-white overflow-hidden">
+    <section className="bg-gradient-to-b from-brand-50 via-white to-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left Content */}
@@ -25,7 +25,7 @@ export default function HeroSection({ totalDoctors = 0 }: HeroSectionProps) {
               className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6"
             >
               Find Trusted{' '}
-              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-brand-900 to-brand-700 bg-clip-text text-transparent">
                 Medical Experts
               </span>{' '}
               Instantly
@@ -49,7 +49,7 @@ export default function HeroSection({ totalDoctors = 0 }: HeroSectionProps) {
                 { value: '2000+', label: 'Cities & Hospitals' }
               ].map((stat, index) => (
                 <div key={index} className="text-center sm:text-left">
-                  <p className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                  <p className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-brand-900 to-brand-700 bg-clip-text text-transparent">
                     {stat.value}
                   </p>
                   <p className="text-sm text-gray-500 mt-1">{stat.label}</p>
@@ -65,7 +65,7 @@ export default function HeroSection({ totalDoctors = 0 }: HeroSectionProps) {
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Link
                   href="/doctors"
-                  className="inline-flex items-center px-6 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-300"
+                  className="inline-flex items-center px-6 py-3.5 bg-gradient-to-r from-brand-900 to-brand-700 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-brand-700/25 transition-all duration-300"
                 >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -76,9 +76,9 @@ export default function HeroSection({ totalDoctors = 0 }: HeroSectionProps) {
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Link
                   href="/hospitals"
-                  className="inline-flex items-center px-6 py-3.5 bg-white border-2 border-gray-200 text-gray-700 rounded-xl font-semibold hover:border-gray-300 hover:bg-gray-50 transition-all duration-300"
+                  className="inline-flex items-center px-6 py-3.5 bg-white border-2 border-brand-200 text-brand-900 rounded-xl font-semibold hover:border-brand-400 hover:bg-brand-50 transition-all duration-300"
                 >
-                  <svg className="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 mr-2 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
                   Find Hospitals
@@ -89,7 +89,7 @@ export default function HeroSection({ totalDoctors = 0 }: HeroSectionProps) {
             {/* Search Section */}
             <motion.div
               variants={staggerItem}
-              className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 p-6"
+              className="bg-white rounded-2xl shadow-xl shadow-brand-200/50 border border-brand-100 p-6"
             >
               <h2 className="text-lg font-semibold text-gray-900 mb-2">Quick Search</h2>
               <p className="text-sm text-gray-500 mb-4">
@@ -107,7 +107,7 @@ export default function HeroSection({ totalDoctors = 0 }: HeroSectionProps) {
                     href={`/specialty/${specialty.toLowerCase()}`}
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                       index === 0
-                        ? 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                        ? 'bg-brand-50 text-brand-900 hover:bg-brand-100'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -128,23 +128,23 @@ export default function HeroSection({ totalDoctors = 0 }: HeroSectionProps) {
             {/* Main Image Container */}
             <div className="relative">
               {/* Background shapes */}
-              <div className="absolute -top-8 -right-8 w-72 h-72 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full opacity-60 blur-3xl" />
-              <div className="absolute -bottom-4 -left-4 w-48 h-48 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full opacity-60 blur-2xl" />
+              <div className="absolute -top-8 -right-8 w-72 h-72 bg-gradient-to-br from-brand-100 to-brand-200 rounded-full opacity-60 blur-3xl" />
+              <div className="absolute -bottom-4 -left-4 w-48 h-48 bg-gradient-to-br from-brand-200 to-brand-300 rounded-full opacity-60 blur-2xl" />
 
               {/* Doctor Card */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.6 }}
-                className="relative bg-white rounded-3xl shadow-2xl shadow-gray-200/50 overflow-hidden border border-gray-100"
+                className="relative bg-white rounded-3xl shadow-2xl shadow-brand-200/50 overflow-hidden border border-brand-100"
               >
                 {/* Header gradient */}
-                <div className="h-32 bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600" />
+                <div className="h-32 bg-gradient-to-r from-brand-900 via-brand-700 to-brand-600" />
 
                 {/* Doctor Avatar */}
                 <div className="relative px-8 pb-8">
                   <div className="-mt-16 mb-4">
-                    <div className="w-32 h-32 mx-auto rounded-2xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center shadow-xl shadow-blue-500/30 border-4 border-white">
+                    <div className="w-32 h-32 mx-auto rounded-2xl bg-gradient-to-br from-brand-700 to-brand-400 flex items-center justify-center shadow-xl shadow-brand-700/30 border-4 border-white">
                       <svg className="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
@@ -152,14 +152,14 @@ export default function HeroSection({ totalDoctors = 0 }: HeroSectionProps) {
                   </div>
 
                   <div className="text-center">
-                    <div className="inline-flex items-center px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-sm font-medium mb-3">
+                    <div className="inline-flex items-center px-3 py-1 bg-brand-50 text-brand-900 rounded-full text-sm font-medium mb-3">
                       <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                       Verified Doctor
                     </div>
                     <h3 className="text-xl font-bold text-gray-900">Dr. Sarah Johnson</h3>
-                    <p className="text-blue-600 font-medium">Cardiologist</p>
+                    <p className="text-brand-700 font-medium">Cardiologist</p>
                     <p className="text-sm text-gray-500 mt-1">New York, NY</p>
 
                     {/* Rating */}
@@ -196,11 +196,11 @@ export default function HeroSection({ totalDoctors = 0 }: HeroSectionProps) {
                 initial="initial"
                 animate="animate"
                 variants={float}
-                className="absolute top-12 -left-8 bg-white rounded-xl shadow-lg shadow-gray-200/50 p-4 border border-gray-100"
+                className="absolute top-12 -left-8 bg-white rounded-xl shadow-lg shadow-brand-200/50 p-4 border border-brand-100"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
@@ -221,15 +221,15 @@ export default function HeroSection({ totalDoctors = 0 }: HeroSectionProps) {
                     transition: {
                       duration: 3.5,
                       repeat: Infinity,
-                      ease: "easeInOut"
+                      ease: [0.45, 0, 0.55, 1]
                     }
                   }
                 }}
-                className="absolute bottom-24 -right-4 bg-white rounded-xl shadow-lg shadow-gray-200/50 p-4 border border-gray-100"
+                className="absolute bottom-24 -right-4 bg-white rounded-xl shadow-lg shadow-brand-200/50 p-4 border border-brand-100"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>

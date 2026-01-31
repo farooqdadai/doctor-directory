@@ -14,17 +14,17 @@ export default function HospitalCard({ hospital }: HospitalCardProps) {
       <motion.div
         whileHover={{ y: -4 }}
         transition={{ duration: 0.2, ease: "easeOut" }}
-        className="group bg-white rounded-2xl border border-gray-100 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 overflow-hidden h-full"
+        className="group bg-white rounded-2xl border border-gray-100 hover:border-brand-300 hover:shadow-xl hover:shadow-brand-700/10 transition-all duration-300 overflow-hidden h-full"
       >
         {/* Header with gradient */}
-        <div className="h-24 bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 relative">
+        <div className="h-24 bg-gradient-to-br from-brand-900 via-brand-700 to-brand-600 relative">
           {/* Hospital Icon */}
           <div className="absolute -bottom-8 left-6">
-            <div className="w-16 h-16 rounded-xl bg-white shadow-lg shadow-emerald-500/20 flex items-center justify-center border border-gray-100 group-hover:shadow-emerald-500/30 transition-shadow duration-300">
+            <div className="w-16 h-16 rounded-xl bg-white shadow-lg shadow-brand-700/20 flex items-center justify-center border border-gray-100 group-hover:shadow-brand-700/30 transition-shadow duration-300">
               {hospital.logo ? (
                 <img src={hospital.logo} alt={hospital.name} className="w-12 h-12 object-contain" />
               ) : (
-                <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-8 h-8 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
               )}
@@ -45,13 +45,13 @@ export default function HospitalCard({ hospital }: HospitalCardProps) {
         {/* Content */}
         <div className="pt-10 px-6 pb-6">
           {/* Name */}
-          <h3 className="text-lg font-bold text-gray-900 group-hover:text-emerald-600 transition-colors duration-200 line-clamp-2 mb-2">
+          <h3 className="text-lg font-bold text-gray-900 group-hover:text-brand-700 transition-colors duration-200 line-clamp-2 mb-2">
             {hospital.name}
           </h3>
 
           {/* Type Badge */}
           {hospital.type && (
-            <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-medium mb-3">
+            <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-brand-50 text-brand-900 text-xs font-medium mb-3">
               {hospital.type}
             </span>
           )}
@@ -86,7 +86,7 @@ export default function HospitalCard({ hospital }: HospitalCardProps) {
               </span>
             )}
             {hospital.county && (
-              <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 text-xs font-medium">
+              <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-brand-50 text-brand-900 text-xs font-medium">
                 {hospital.county} County
               </span>
             )}
@@ -99,9 +99,9 @@ export default function HospitalCard({ hospital }: HospitalCardProps) {
                 <a
                   href={`tel:${hospital.telephone.replace(/\D/g, '')}`}
                   onClick={(e) => e.stopPropagation()}
-                  className="w-8 h-8 rounded-lg bg-gray-50 hover:bg-emerald-50 flex items-center justify-center transition-colors duration-200"
+                  className="w-8 h-8 rounded-lg bg-gray-50 hover:bg-brand-50 flex items-center justify-center transition-colors duration-200"
                 >
-                  <svg className="w-4 h-4 text-gray-400 hover:text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 text-gray-400 hover:text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
                 </a>
@@ -112,9 +112,9 @@ export default function HospitalCard({ hospital }: HospitalCardProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  className="w-8 h-8 rounded-lg bg-gray-50 hover:bg-emerald-50 flex items-center justify-center transition-colors duration-200"
+                  className="w-8 h-8 rounded-lg bg-gray-50 hover:bg-brand-50 flex items-center justify-center transition-colors duration-200"
                 >
-                  <svg className="w-4 h-4 text-gray-400 hover:text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 text-gray-400 hover:text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                   </svg>
                 </a>
@@ -125,9 +125,9 @@ export default function HospitalCard({ hospital }: HospitalCardProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  className="w-8 h-8 rounded-lg bg-gray-50 hover:bg-emerald-50 flex items-center justify-center transition-colors duration-200"
+                  className="w-8 h-8 rounded-lg bg-gray-50 hover:bg-brand-50 flex items-center justify-center transition-colors duration-200"
                 >
-                  <svg className="w-4 h-4 text-gray-400 hover:text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 text-gray-400 hover:text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                   </svg>
                 </a>
@@ -135,7 +135,7 @@ export default function HospitalCard({ hospital }: HospitalCardProps) {
             </div>
 
             {/* View Details Arrow */}
-            <div className="flex items-center text-emerald-600 text-sm font-semibold opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-x-2 group-hover:translate-x-0">
+            <div className="flex items-center text-brand-700 text-sm font-semibold opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-x-2 group-hover:translate-x-0">
               <span className="mr-1">View</span>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

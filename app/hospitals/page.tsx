@@ -80,15 +80,15 @@ export default async function HospitalsPage({ searchParams }: PageProps) {
   if (hasTrauma) activeFilters.push('Trauma Center');
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-brand-50/30 min-h-screen">
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 text-white">
+      <div className="bg-gradient-to-br from-brand-900 via-brand-700 to-brand-600 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-3xl md:text-4xl font-bold mb-4">
               Find Hospitals
             </h1>
-            <p className="text-lg text-emerald-100 mb-8">
+            <p className="text-lg text-brand-100 mb-8">
               Browse {totalCount.toLocaleString()} hospitals across the United States
             </p>
 
@@ -151,7 +151,7 @@ export default async function HospitalsPage({ searchParams }: PageProps) {
                 </p>
                 <Link
                   href="/hospitals"
-                  className="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors"
+                  className="inline-flex items-center px-4 py-2 bg-brand-700 text-white rounded-xl hover:bg-brand-900 transition-colors"
                 >
                   Try Again
                 </Link>
@@ -209,7 +209,7 @@ export default async function HospitalsPage({ searchParams }: PageProps) {
                             }).toString()}`}
                             className={`w-10 h-10 flex items-center justify-center rounded-xl font-medium transition-colors ${
                               pageNum === page
-                                ? 'bg-emerald-600 text-white'
+                                ? 'bg-brand-700 text-white'
                                 : 'text-gray-600 hover:bg-gray-100'
                             }`}
                           >
@@ -258,7 +258,7 @@ export default async function HospitalsPage({ searchParams }: PageProps) {
                 </p>
                 <Link
                   href="/hospitals"
-                  className="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors"
+                  className="inline-flex items-center px-4 py-2 bg-brand-700 text-white rounded-xl hover:bg-brand-900 transition-colors"
                 >
                   Clear Filters
                 </Link>

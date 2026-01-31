@@ -6,6 +6,30 @@ This document tracks all changes made to the project with each commit for clarit
 
 ## Commit History (Newest First)
 
+### `ee323ac` - feat: Update color palette to custom brand colors
+**Date:** January 31, 2026
+
+**Changes:**
+- Added custom brand color palette to globals.css using Tailwind v4 @theme directive
+- Updated all components to use new brand colors
+- Unified color scheme across doctors and hospitals (previously separate blue/emerald themes)
+
+**Color Palette:**
+- `brand-900`: #09637E (dark teal - primary dark)
+- `brand-700`: #088395 (teal - primary)
+- `brand-400`: #7AB2B2 (light teal - secondary)
+- `brand-50`: #EBF4F6 (very light - background)
+
+**Files Modified:**
+- `app/globals.css` - Added @theme with brand colors
+- `components/home/HeroSection.tsx` - Updated to brand colors
+- `components/doctors/DoctorCard.tsx` - Updated to brand colors
+- `components/hospitals/HospitalCard.tsx` - Updated to brand colors
+- `components/layout/Header.tsx` - Updated to brand colors
+- `app/hospitals/page.tsx` - Updated hero and buttons to brand colors
+
+---
+
 ### `34c6fc0` - feat: Add Framer Motion animations and improve design consistency
 **Date:** January 31, 2026
 
