@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import PageTransition from "@/components/ui/PageTransition";
+import NavigationLoader from "@/components/ui/NavigationLoader";
 
 export const metadata: Metadata = {
   title: {
@@ -29,6 +31,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased min-h-screen flex flex-col">
+        <Suspense fallback={null}>
+          <NavigationLoader />
+        </Suspense>
         <Header />
         <main className="flex-1">
           <PageTransition>{children}</PageTransition>
