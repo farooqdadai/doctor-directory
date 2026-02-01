@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import SearchBar from '../search/SearchBar';
-import { fadeInRight, staggerContainer, staggerItem, float } from '@/lib/motion';
 
 interface HeroSectionProps {
   totalDoctors?: number;
@@ -11,234 +10,222 @@ interface HeroSectionProps {
 
 export default function HeroSection({ totalDoctors = 0 }: HeroSectionProps) {
   return (
-    <section className="bg-gradient-to-b from-brand-50 via-white to-white overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+    <section className="relative min-h-[90vh] flex items-center overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-brand-50 via-white to-brand-50/30" />
+
+      {/* Animated background shapes */}
+      <div className="absolute inset-0 overflow-hidden">
+        <motion.div
+          animate={{
+            x: [0, 30, 0],
+            y: [0, -20, 0],
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -top-24 -right-24 w-96 h-96 bg-gradient-to-br from-brand-200/40 to-brand-300/30 rounded-full blur-3xl"
+        />
+        <motion.div
+          animate={{
+            x: [0, -20, 0],
+            y: [0, 30, 0],
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -bottom-32 -left-32 w-[500px] h-[500px] bg-gradient-to-tr from-brand-100/50 to-brand-200/40 rounded-full blur-3xl"
+        />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-brand-50/30 to-transparent rounded-full blur-3xl" />
+      </div>
+
+      {/* Grid pattern */}
+      <div className="absolute inset-0 pattern-grid opacity-30" />
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center">
           {/* Left Content */}
           <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={staggerContainer}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
           >
-            <motion.h1
-              variants={staggerItem}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6"
+            {/* Badge */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 }}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-brand-100 shadow-sm mb-8"
             >
-              Find Trusted{' '}
-              <span className="bg-gradient-to-r from-brand-900 to-brand-700 bg-clip-text text-transparent">
-                Medical Experts
-              </span>{' '}
-              Instantly
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-sm font-medium text-gray-700">
+                Trusted by <span className="text-brand-700 font-bold">500,000+</span> patients
+              </span>
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.8 }}
+              className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 leading-[1.1] mb-6"
+            >
+              Find Your{' '}
+              <span className="relative inline-block">
+                <span className="relative z-10 gradient-text">Perfect</span>
+                <motion.span
+                  initial={{ width: 0 }}
+                  animate={{ width: '100%' }}
+                  transition={{ delay: 0.8, duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+                  className="absolute bottom-2 left-0 h-3 bg-brand-200/60 -z-10 rounded"
+                />
+              </span>
+              <br />
+              Healthcare Provider
             </motion.h1>
 
             <motion.p
-              variants={staggerItem}
-              className="text-lg text-gray-600 mb-8 max-w-lg leading-relaxed"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.8 }}
+              className="text-lg sm:text-xl text-gray-600 mb-10 max-w-xl leading-relaxed"
             >
-              Your one-stop directory for doctors, clinics, hospitals and healthcare providers. Search by specialty, location, and more.
+              Connect with verified doctors, specialists, and hospitals.
+              Book appointments and access quality healthcare in your area.
             </motion.p>
 
             {/* Stats */}
             <motion.div
-              variants={staggerItem}
-              className="flex flex-wrap gap-8 mb-10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.8 }}
+              className="flex flex-wrap items-center gap-x-10 gap-y-4 mb-10"
             >
               {[
-                { value: totalDoctors > 0 ? totalDoctors.toLocaleString() : '500K', label: 'Trusted Doctors' },
-                { value: '150K', label: 'Verified Doctors' },
-                { value: '2000+', label: 'Cities & Hospitals' }
+                { value: totalDoctors > 0 ? totalDoctors.toLocaleString() : '500K+', label: 'Doctors' },
+                { value: '150K+', label: 'Verified' },
+                { value: '2,000+', label: 'Hospitals' }
               ].map((stat, index) => (
-                <div key={index} className="text-center sm:text-left">
-                  <p className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-brand-900 to-brand-700 bg-clip-text text-transparent">
+                <div key={index} className="flex items-baseline gap-2">
+                  <span className="text-3xl sm:text-4xl font-bold text-brand-900">
                     {stat.value}
-                  </p>
-                  <p className="text-sm text-gray-500 mt-1">{stat.label}</p>
+                  </span>
+                  <span className="text-sm font-medium text-gray-500">{stat.label}</span>
                 </div>
               ))}
             </motion.div>
 
             {/* CTA Buttons */}
             <motion.div
-              variants={staggerItem}
-              className="flex flex-wrap gap-4 mb-10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.8 }}
+              className="flex flex-wrap gap-4"
             >
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Link
                   href="/doctors"
-                  className="inline-flex items-center px-6 py-3.5 bg-gradient-to-r from-brand-900 to-brand-700 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-brand-700/25 transition-all duration-300"
+                  className="group relative inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-brand-900 to-brand-700 text-white rounded-2xl font-semibold shadow-xl shadow-brand-700/25 hover:shadow-brand-700/40 transition-all duration-300 overflow-hidden"
                 >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span className="absolute inset-0 bg-gradient-to-r from-brand-800 to-brand-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <svg className="relative w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
-                  Search a Doctor
+                  <span className="relative">Find a Doctor</span>
                 </Link>
               </motion.div>
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Link
                   href="/hospitals"
-                  className="inline-flex items-center px-6 py-3.5 bg-white border-2 border-brand-200 text-brand-900 rounded-xl font-semibold hover:border-brand-400 hover:bg-brand-50 transition-all duration-300"
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-white/80 backdrop-blur-sm border-2 border-gray-200 text-gray-900 rounded-2xl font-semibold hover:border-brand-300 hover:bg-brand-50/50 transition-all duration-300"
                 >
-                  <svg className="w-5 h-5 mr-2 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
-                  Find Hospitals
+                  <span>Find Hospitals</span>
                 </Link>
               </motion.div>
             </motion.div>
-
-            {/* Search Section */}
-            <motion.div
-              variants={staggerItem}
-              className="bg-white rounded-2xl shadow-xl shadow-brand-200/50 border border-brand-100 p-6"
-            >
-              <h2 className="text-lg font-semibold text-gray-900 mb-2">Quick Search</h2>
-              <p className="text-sm text-gray-500 mb-4">
-                Find a doctor by specialty, name, or location
-              </p>
-
-              <SearchBar size="large" />
-
-              {/* Popular Tags */}
-              <div className="mt-4 flex flex-wrap items-center gap-2">
-                <span className="text-sm text-gray-500">Popular:</span>
-                {['Cardiology', 'Dermatology', 'Orthopedics', 'Pediatrics'].map((specialty, index) => (
-                  <Link
-                    key={specialty}
-                    href={`/specialty/${specialty.toLowerCase()}`}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      index === 0
-                        ? 'bg-brand-50 text-brand-900 hover:bg-brand-100'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    {specialty}
-                  </Link>
-                ))}
-              </div>
-            </motion.div>
           </motion.div>
 
-          {/* Right Content - Doctor Illustration */}
+          {/* Right Content - Search Card */}
           <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={fadeInRight}
-            className="relative hidden lg:block"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4, duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+            className="relative"
           >
-            {/* Main Image Container */}
-            <div className="relative">
-              {/* Background shapes */}
-              <div className="absolute -top-8 -right-8 w-72 h-72 bg-gradient-to-br from-brand-100 to-brand-200 rounded-full opacity-60 blur-3xl" />
-              <div className="absolute -bottom-4 -left-4 w-48 h-48 bg-gradient-to-br from-brand-200 to-brand-300 rounded-full opacity-60 blur-2xl" />
-
-              {/* Doctor Card */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.6 }}
-                className="relative bg-white rounded-3xl shadow-2xl shadow-brand-200/50 overflow-hidden border border-brand-100"
-              >
-                {/* Header gradient */}
-                <div className="h-32 bg-gradient-to-r from-brand-900 via-brand-700 to-brand-600" />
-
-                {/* Doctor Avatar */}
-                <div className="relative px-8 pb-8">
-                  <div className="-mt-16 mb-4">
-                    <div className="w-32 h-32 mx-auto rounded-2xl bg-gradient-to-br from-brand-700 to-brand-400 flex items-center justify-center shadow-xl shadow-brand-700/30 border-4 border-white">
-                      <svg className="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                  </div>
-
-                  <div className="text-center">
-                    <div className="inline-flex items-center px-3 py-1 bg-brand-50 text-brand-900 rounded-full text-sm font-medium mb-3">
-                      <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      Verified Doctor
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900">Dr. Sarah Johnson</h3>
-                    <p className="text-brand-700 font-medium">Cardiologist</p>
-                    <p className="text-sm text-gray-500 mt-1">New York, NY</p>
-
-                    {/* Rating */}
-                    <div className="flex items-center justify-center gap-1 mt-3">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <svg key={star} className="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                      ))}
-                      <span className="text-sm text-gray-600 ml-1 font-medium">4.9</span>
-                    </div>
-
-                    {/* Quick Stats */}
-                    <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-gray-100">
-                      <div>
-                        <p className="text-lg font-bold text-gray-900">15+</p>
-                        <p className="text-xs text-gray-500">Years Exp.</p>
-                      </div>
-                      <div>
-                        <p className="text-lg font-bold text-gray-900">2000+</p>
-                        <p className="text-xs text-gray-500">Patients</p>
-                      </div>
-                      <div>
-                        <p className="text-lg font-bold text-gray-900">98%</p>
-                        <p className="text-xs text-gray-500">Satisfaction</p>
-                      </div>
-                    </div>
-                  </div>
+            {/* Floating elements */}
+            <motion.div
+              animate={{ y: [-5, 5, -5] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -top-6 -left-6 z-20 bg-white rounded-2xl shadow-xl shadow-brand-200/40 p-4 border border-gray-100"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-400 to-green-500 flex items-center justify-center shadow-lg shadow-green-500/30">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
                 </div>
-              </motion.div>
+                <div>
+                  <p className="text-sm font-bold text-gray-900">Verified Doctors</p>
+                  <p className="text-xs text-gray-500">All credentials checked</p>
+                </div>
+              </div>
+            </motion.div>
 
-              {/* Floating Elements */}
-              <motion.div
-                initial="initial"
-                animate="animate"
-                variants={float}
-                className="absolute top-12 -left-8 bg-white rounded-xl shadow-lg shadow-brand-200/50 p-4 border border-brand-100"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <motion.div
+              animate={{ y: [5, -5, 5] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -bottom-4 -right-4 z-20 bg-white rounded-2xl shadow-xl shadow-brand-200/40 p-4 border border-gray-100"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-600 to-brand-700 flex items-center justify-center shadow-lg shadow-brand-700/30">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-gray-900">Quick Booking</p>
+                  <p className="text-xs text-gray-500">Connect instantly</p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Main Search Card */}
+            <div className="relative bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl shadow-brand-200/30 border border-gray-100/80 p-8 lg:p-10">
+              <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-brand-50/50 to-transparent pointer-events-none" />
+
+              <div className="relative">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900">Quick Search</h2>
+                    <p className="text-sm text-gray-500 mt-1">Find healthcare providers near you</p>
+                  </div>
+                  <div className="w-12 h-12 rounded-2xl bg-brand-50 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">100% Verified</p>
-                    <p className="text-xs text-gray-500">All credentials checked</p>
-                  </div>
                 </div>
-              </motion.div>
 
-              <motion.div
-                initial="initial"
-                animate="animate"
-                variants={{
-                  initial: { y: 0 },
-                  animate: {
-                    y: [4, -4, 4],
-                    transition: {
-                      duration: 3.5,
-                      repeat: Infinity,
-                      ease: [0.45, 0, 0.55, 1]
-                    }
-                  }
-                }}
-                className="absolute bottom-24 -right-4 bg-white rounded-xl shadow-lg shadow-brand-200/50 p-4 border border-brand-100"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">Quick Access</p>
-                    <p className="text-xs text-gray-500">Book appointments</p>
+                <SearchBar size="large" />
+
+                {/* Popular Tags */}
+                <div className="mt-6 pt-6 border-t border-gray-100">
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Popular Specialties</p>
+                  <div className="flex flex-wrap gap-2">
+                    {['Cardiology', 'Dermatology', 'Orthopedics', 'Pediatrics', 'Neurology'].map((specialty, index) => (
+                      <Link
+                        key={specialty}
+                        href={`/specialty/${specialty.toLowerCase()}`}
+                        className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                          index === 0
+                            ? 'bg-brand-700 text-white shadow-md shadow-brand-700/25 hover:bg-brand-800'
+                            : 'bg-gray-50 text-gray-700 hover:bg-brand-50 hover:text-brand-700'
+                        }`}
+                      >
+                        {specialty}
+                      </Link>
+                    ))}
                   </div>
                 </div>
-              </motion.div>
+              </div>
             </div>
           </motion.div>
         </div>

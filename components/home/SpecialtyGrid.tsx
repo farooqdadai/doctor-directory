@@ -91,12 +91,15 @@ export default function SpecialtyGrid({ specialties }: SpecialtyGridProps) {
   const topSpecialties = specialties.slice(0, 9);
 
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-20 lg:py-28 bg-gradient-to-b from-white via-gray-50/50 to-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider">Specializations</span>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2">Browse by Specialty</h2>
-          <p className="text-gray-600 mt-3 max-w-2xl mx-auto">
+        <div className="text-center mb-14">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-brand-50 text-brand-700 rounded-full text-sm font-semibold mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-500" />
+            Specializations
+          </span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mt-2">Browse by Specialty</h2>
+          <p className="text-gray-600 mt-4 max-w-2xl mx-auto text-lg">
             Find the right healthcare professional based on their area of expertise
           </p>
         </div>
@@ -108,35 +111,37 @@ export default function SpecialtyGrid({ specialties }: SpecialtyGridProps) {
               <Link
                 key={specialty.slug}
                 href={`/specialty/${specialty.slug}`}
-                className={`group relative ${colors.bg} rounded-2xl p-6 border ${colors.border} hover:shadow-lg transition-all duration-300 overflow-hidden`}
+                className={`group relative bg-white rounded-2xl p-6 border border-gray-100 hover:border-gray-200 shadow-sm hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300 overflow-hidden`}
               >
-                {/* Background gradient on hover */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                {/* Gradient accent on hover */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-700 to-brand-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                 <div className="relative flex items-start gap-4">
                   {/* Icon */}
-                  <div className={`w-12 h-12 rounded-xl ${colors.bg} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>
-                    <SpecialtyIcon slug={specialty.slug} className={`w-6 h-6 ${colors.icon}`} />
+                  <div className={`w-14 h-14 rounded-2xl ${colors.bg} flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300 shadow-sm`}>
+                    <SpecialtyIcon slug={specialty.slug} className={`w-7 h-7 ${colors.icon}`} />
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors text-lg">
+                    <h3 className="font-bold text-gray-900 group-hover:text-brand-700 transition-colors text-lg">
                       {specialty.name}
                     </h3>
-                    <p className="text-sm text-gray-500 mt-1">
-                      {specialty.count} {specialty.count === 1 ? 'provider' : 'providers'}
+                    <p className="text-sm text-gray-500 mt-1 font-medium">
+                      {specialty.count.toLocaleString()} {specialty.count === 1 ? 'provider' : 'providers'}
                     </p>
                   </div>
 
                   {/* Arrow */}
-                  <svg
-                    className="w-5 h-5 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
+                  <div className="w-8 h-8 rounded-lg bg-gray-50 group-hover:bg-brand-50 flex items-center justify-center transition-colors duration-300">
+                    <svg
+                      className="w-4 h-4 text-gray-400 group-hover:text-brand-700 group-hover:translate-x-0.5 transition-all duration-300"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
                 </div>
               </Link>
             );
@@ -144,13 +149,13 @@ export default function SpecialtyGrid({ specialties }: SpecialtyGridProps) {
         </div>
 
         {specialties.length > 9 && (
-          <div className="text-center mt-10">
+          <div className="text-center mt-12">
             <Link
               href="/doctors"
-              className="inline-flex items-center px-6 py-3 bg-white border border-gray-200 rounded-xl text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
+              className="group inline-flex items-center gap-2 px-8 py-4 bg-gray-900 text-white rounded-2xl font-semibold hover:bg-gray-800 transition-all duration-300 shadow-lg shadow-gray-900/20"
             >
               View all {specialties.length} specialties
-              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </Link>
