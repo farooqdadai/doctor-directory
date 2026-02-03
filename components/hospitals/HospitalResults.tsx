@@ -3,24 +3,7 @@
 import AnimatedResults from '@/components/ui/AnimatedResults';
 import AnimatedList, { AnimatedListItem } from '@/components/ui/AnimatedList';
 import HospitalCard from '@/components/hospitals/HospitalCard';
-
-interface Hospital {
-  id: string;
-  name: string;
-  slug: string;
-  type: string;
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  phone?: string;
-  website?: string;
-  emergencyServices: boolean;
-  traumaCenter?: string;
-  beds?: number;
-  ownership?: string;
-  overallRating?: number;
-}
+import type { Hospital } from '@/lib/types';
 
 interface HospitalResultsProps {
   hospitals: Hospital[];
