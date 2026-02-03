@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getDoctorBySlug, getRelatedDoctors } from "@/lib/data/sheets";
 import { getStateName } from "@/lib/utils/slugify";
 import DoctorCard from "@/components/doctors/DoctorCard";
+import { DoctorJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -60,8 +61,18 @@ export default async function DoctorProfilePage({ params }: PageProps) {
   ].filter(s => s.url);
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      {/* Hero Section with Gradient */}
+    <>
+      <DoctorJsonLd doctor={doctor} />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', url: '/' },
+          { name: 'Doctors', url: '/doctors' },
+          { name: doctor.specialty, url: `/specialty/${doctor.specialtySlug}` },
+          { name: doctor.fullName, url: `/doctor/${doctor.slug}` },
+        ]}
+      />
+      <div className="bg-gray-50 min-h-screen">
+        {/* Hero Section with Gradient */}
       <div className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 text-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Back Navigation */}
@@ -563,5 +574,6 @@ export default async function DoctorProfilePage({ params }: PageProps) {
         )}
       </div>
     </div>
+    </>
   );
 }

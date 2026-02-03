@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getHospitalBySlug, getRelatedHospitals } from '@/lib/data/sheets';
 import HospitalCard from '@/components/hospitals/HospitalCard';
+import { HospitalJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -51,8 +52,18 @@ export default async function HospitalDetailPage({ params }: PageProps) {
     : [];
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      {/* Hero Section */}
+    <>
+      <HospitalJsonLd hospital={hospital} />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', url: '/' },
+          { name: 'Hospitals', url: '/hospitals' },
+          { name: hospital.state, url: `/hospitals?state=${hospital.stateSlug}` },
+          { name: hospital.name, url: `/hospital/${hospital.slug}` },
+        ]}
+      />
+      <div className="bg-gray-50 min-h-screen">
+        {/* Hero Section */}
       <div className="bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 text-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Back Navigation */}
@@ -492,5 +503,6 @@ export default async function HospitalDetailPage({ params }: PageProps) {
         )}
       </div>
     </div>
+    </>
   );
 }
